@@ -56,7 +56,7 @@
   const questions = DATA.map(q => {
     const correctIndex = q.answer;
     const opts = q.options.map((t, i) => ({ text: t, correct: (i === correctIndex) }));
-    shuffle(opts);
+    //shuffle(opts);
     return { ...q, options: opts };
   });
 
