@@ -60,7 +60,7 @@
     return { ...q, options: opts };
   });
 
-  shuffle(questions);
+  //shuffle(questions);
 
   let cur = 0;
   const user = new Array(questions.length).fill(null);
