@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+  getAuth, signInWithEmailAndPassword, signOut 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { 
-  getFirestore, doc, getDoc, setDoc, updateDoc 
+  getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -12,58 +12,48 @@ const firebaseConfig = {
   projectId: "donghung-3208d",
   storageBucket: "donghung-3208d.firebasestorage.app",
   messagingSenderId: "753379492663",
-  appId: "1:753379492663:web:baff34f2c0bac00e02d0b2",
-  measurementId: "G-06PF7MH1P0"
+  appId: "1:753379492663:web:baff34f2c0bac00e02d0b2"
 };
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-export async function loginUser(email, password) {
-  try {
-    console.log("🚀 Đang đăng nhập...");
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
-    console.log("✅ Firebase Auth thành công:", user.email);
-
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-    const currentDevice = navigator.userAgent + "_" + Math.random().toString(36).slice(2);
-
-    if (snap.exists()) {
-      const data = snap.data();
-      console.log("📄 Data hiện tại:", data);
-      if (data.activeDevice && data.activeDevice !== currentDevice) {
-        alert("⚠️ Tài khoản này đang đăng nhập ở thiết bị khác.");
-        await signOut(auth);
-        throw new Error("Device conflict");
-      } else {
-        await updateDoc(userRef, { activeDevice: currentDevice, lastLogin: Date.now() });
-        console.log("📡 Đã cập nhật activeDevice:", currentDevice);
-      }
-    } else {
-      await setDoc(userRef, { activeDevice: currentDevice, lastLogin: Date.now() });
-      console.log("🆕 Tạo document mới cho user:", user.uid);
-    }
-
-    location.href = "index.html";
-  } catch (err) {
-    console.error("❌ Lỗi đăng nhập:", err);
-    alert("Lỗi: " + err.message);
-    throw err;
+// 👉 tạo ID thiết bị (đơn giản, đủ dùng)
+function getDeviceId() {
+  let id = localStorage.getItem("device_id");
+  if (!id) {
+    id = navigator.userAgent + "_" + Math.random().toString(36).slice(2);
+    localStorage.setItem("device_id", id);
   }
+  return id;
+}
+
+export async function loginUser(email, password) {
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  const user = cred.user;
+
+  const deviceId = getDeviceId();
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      email: user.email,
+      devices: [deviceId],
+      lastLogin: Date.now()
+    });
+  } else {
+    await updateDoc(ref, {
+      devices: arrayUnion(deviceId),
+      lastLogin: Date.now()
+    });
+  }
+
+  location.href = "index.html";
 }
 
 export async function logout() {
-  const user = auth.currentUser;
-  if (!user) return;
-  try {
-    const userRef = doc(db, "users", user.uid);
-    await updateDoc(userRef, { activeDevice: null });
-    await signOut(auth);
-    location.href = "login.html";
-  } catch (err) {
-    console.error("🚨 Lỗi khi đăng xuất:", err);
-  }
+  await signOut(auth);
+  location.href = "login.html";
 }
