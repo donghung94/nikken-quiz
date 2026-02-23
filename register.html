@@ -152,19 +152,31 @@
             const user = userCredential.user;
 
             // Bước B: Tạo Document trên Firestore (Quan trọng cho Admin quản lý)
-            await setDoc(doc(db, "users", user.uid), {
-                name: fullName,
-                email: email,
-                role: "student",     // Đánh dấu là học viên
-                device_count: 0,     // Khởi tạo: chưa có thiết bị nào
-                devices: {},         // Danh sách thiết bị rỗng
-                status: "active",    // Trạng thái hoạt động
-                createdAt: serverTimestamp(),
-                exam_progress: {     // Ví dụ lưu tiến độ học
-                    doboku: 0,       // Tiến độ phần 土木（どぼく）
-                    kenchiku: 0      // Tiến độ phần 建築（けんちく）
-                }
-            });
+           await setDoc(doc(db, "users", user.uid), {
+    name: fullName,
+    email: email,
+
+    role: "student",
+    isPremium: false,          // 🔥 Mặc định là tài khoản FREE
+    status: "active",
+
+    device_count: 0,
+    devices: {},
+
+    createdAt: serverTimestamp(),
+
+    // Quyền truy cập pack
+    packAccess: {
+        free: true,
+        full: false
+    },
+
+    // Tiến độ học
+    exam_progress: {
+        doboku: 0,
+        kenchiku: 0
+    }
+});
 
             // Bước C: Thông báo thành công
             messageDiv.textContent = "✅ Đăng ký thành công! Đã tạo dữ liệu quản lý.";
