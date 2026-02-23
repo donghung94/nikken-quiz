@@ -42,7 +42,38 @@
 
     window.logout = logout;
   </script>
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    let isUnlocked = false;
+
+    if (snap.exists()) {
+      isUnlocked = snap.data().isUnlocked === true;
+    }
+
+    if (!isUnlocked) {
+      lockPremiumExams();
+    }
+  });
+
+  function lockPremiumExams() {
+    document.querySelectorAll(".premium").forEach(el => {
+      el.classList.add("locked");
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("🔒 Bạn đã học hết 30 câu miễn phí.\nVui lòng liên hệ Zalo để mở khóa.");
+      });
+    });
+  }
+</script>
 <header class="header">
   <div class="brand">
     <img src="icon-192.png" alt="H" class="logo">
@@ -101,14 +132,14 @@
     <h2>Chọn đề thi lý thuyết chung</h2>
     <ul id="exam-list" class="exam-list">
       <li><a href="exam.html?set=1">Lý thuyết chung – (問1〜問30)</a></li>
-      <li><a href="exam.html?set=2">Lý thuyết chung – (問31〜問60)</a></li>
-      <li><a href="exam.html?set=3">Lý thuyết chung – (問61〜問90)</a></li>
-      <li><a href="exam.html?set=4">Lý thuyết chung – (問91〜問120)</a></li>
-      <li><a href="exam.html?set=5">Lý thuyết chung – (問121〜問150)</a></li>
-      <li><a href="exam.html?set=6">Lý thuyết chung – (問151〜問180)</a></li>
-      <li><a href="exam.html?set=7">👉 Những câu lý thuyết hay thi phần 1</a></li>
-      <li><a href="exam.html?set=8">👉 Những câu lý thuyết hay thi phần 2</a></li>
-      <li><a href="exam.html?set=randomExam" style="font-weight:bold;color:#1e40af;">
+      <li><a href="exam.html?set=2" class="premium">Lý thuyết chung – (問31〜問60)</a></li>
+      <li><a href="exam.html?set=3" class="premium">Lý thuyết chung – (問61〜問90)</a></li>
+      <li><a href="exam.html?set=4" class="premium">Lý thuyết chung – (問91〜問120)</a></li>
+      <li><a href="exam.html?set=5" class="premium">Lý thuyết chung – (問121〜問150)</a></li>
+      <li><a href="exam.html?set=6" class="premium">Lý thuyết chung – (問151〜問180)</a></li>
+      <li><a href="exam.html?set=7" class="premium">👉 Những câu lý thuyết hay thi phần 1</a></li>
+      <li><a href="exam.html?set=8" class="premium">👉 Những câu lý thuyết hay thi phần 2</a></li>
+      <li><a href="exam.html?set=randomExam" style="font-weight:bold;color:#1e40af;" class="premium">
         🎲 Đề thi thử lý thuyết chung đảo ngẫu nhiên
       </a></li>
     </ul>
@@ -119,11 +150,11 @@
   <div class="card">
     <h2>🧰 Đề thực hành nhóm 1</h2>
     <ul class="exam-list">
-      <li><a href="exam.html?practice=g1_1">Thực hành nhóm 1 – (問1〜問30)</a></li>
-      <li><a href="exam.html?practice=g1_2">Thực hành nhóm 1 – (問31〜問60)</a></li>
-      <li><a href="exam.html?practice=g1_3">Thực hành nhóm 1 – (問61〜問90)</a></li>
-      <li><a href="exam.html?practice=g1_4">Thực hành nhóm 1 – (問91〜問132)</a></li>
-      <li><a href="exam.html?practice=g1_random" style="font-weight:bold;color:#1e40af;">🎲 Đề thi thử đảo ngẫu nhiên 40 câu thực hành nhóm 1</a></li>
+      <li><a href="exam.html?practice=g1_1" class="premium">Thực hành nhóm 1 – (問1〜問30)</a></li>
+      <li><a href="exam.html?practice=g1_2" class="premium">Thực hành nhóm 1 – (問31〜問60)</a></li>
+      <li><a href="exam.html?practice=g1_3" class="premium">Thực hành nhóm 1 – (問61〜問90)</a></li>
+      <li><a href="exam.html?practice=g1_4" class="premium">Thực hành nhóm 1 – (問91〜問132)</a></li>
+      <li><a href="exam.html?practice=g1_random" style="font-weight:bold;color:#1e40af;" class="premium">🎲 Đề thi thử đảo ngẫu nhiên 40 câu thực hành nhóm 1</a></li>
     </ul>
   </div>
   <!-- ========================= -->
@@ -132,11 +163,11 @@
   <div class="card">
     <h2>🧰 Đề thực hành nhóm 2</h2>
     <ul class="exam-list">
-      <li><a href="exam.html?practice=g2_1">Thực hành nhóm 2 – (問1〜問30)</a></li>
-      <li><a href="exam.html?practice=g2_2">Thực hành nhóm 2 – (問31〜問60)</a></li>
-      <li><a href="exam.html?practice=g2_3">Thực hành nhóm 2 – (問61〜問90)</a></li>
-      <li><a href="exam.html?practice=g2_4">Thực hành nhóm 2 – (問91〜問130)</a></li>
-       <li><a href="exam.html?practice=g2_random" style="font-weight:bold;color:#1e40af;">🎲 Đề thi thử đảo ngẫu nhiên 40 câu thực hành nhóm 2</a></li>
+      <li><a href="exam.html?practice=g2_1" class="premium">Thực hành nhóm 2 – (問1〜問30)</a></li>
+      <li><a href="exam.html?practice=g2_2" class="premium">Thực hành nhóm 2 – (問31〜問60)</a></li>
+      <li><a href="exam.html?practice=g2_3" class="premium">Thực hành nhóm 2 – (問61〜問90)</a></li>
+      <li><a href="exam.html?practice=g2_4" class="premium">Thực hành nhóm 2 – (問91〜問130)</a></li>
+       <li><a href="exam.html?practice=g2_random" style="font-weight:bold;color:#1e40af;" class="premium">🎲 Đề thi thử đảo ngẫu nhiên 40 câu thực hành nhóm 2</a></li>
     </ul>
   </div>
 </main>
