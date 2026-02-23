@@ -179,11 +179,10 @@
 });
 
             // Bước C: Thông báo thành công
-            messageDiv.textContent = "✅ Đăng ký thành công! Đã tạo dữ liệu quản lý.";
-            messageDiv.className = "message success";
-            
-            // Xóa form để nhập người tiếp theo (nếu bạn dùng file này để nhập liệu)
-            registerForm.reset(); 
+           messageDiv.textContent = "✅ Đăng ký thành công! Đang chuyển sang trang học...";
+setTimeout(() => {
+    window.location.href = "login.html";
+}, 2000);
 
         } catch (error) {
             console.error(error);
