@@ -315,4 +315,14 @@ body.mono{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-a
   flex: 1;
   margin: 0 4px;
 }
+.locked {
+  opacity: 0.5;
+  position: relative;
+}
+
+.locked::after {
+  content: " 🔒";
+  color: red;
+  font-weight: bold;
+}
 .tip { background:#f9fafb; border-left:4px solid #3b82f6; padding:6px 10px; margin-top:6px; }
