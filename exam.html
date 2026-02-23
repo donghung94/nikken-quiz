@@ -1,160 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Trị Viên - Toukutei 2</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        
-        /* Phần thông tin máy Admin */
-        .admin-info { background: #eff6ff; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2563eb; font-size: 13px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #1e40af; color: white; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; }
-        .btn-reset { background: #f59e0b; }
-        .btn-ban { background: #ef4444; }
-        .btn-unban { background: #10b981; }
-        
-        .status-active { color: #059669; font-weight: bold; }
-        .status-banned { color: #dc2626; font-weight: bold; }
-        .device-id { font-family: monospace; font-size: 11px; background: #eee; padding: 2px 4px; display: block; margin-top: 4px; color: #666; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz APP luyện thi</title>
+  <link rel="icon" href="icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="firebase.js"></script>
 </head>
-<body>
 
-<div class="container">
-    <div class="header">
-        <h2>Quản Lý Học Viên</h2>
-        <button class="btn" style="background:#64748b" onclick="location.reload()">Làm mới trang</button>
-    </div>
+<body class="mono">
+  <!-- 🔐 Kiểm tra đăng nhập -->
+ <script type="module">
+    // 1. Thêm db và signOut vào phần import
+    import { auth, db } from "./firebase.js"; 
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    <div class="admin-info" id="current-admin-device">
-        Đang kiểm tra thiết bị quản trị...
-    </div>
-
-    <div id="loading" style="text-align:center; padding: 20px;">🚀 Đang tải danh sách học viên...</div>
-
-    <table id="adminTable" style="display:none;">
-        <thead>
-            <tr>
-                <th>Học viên</th>
-                <th>Thiết bị (ID)</th>
-                <th>Tiến độ</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody id="userList"></tbody>
-    </table>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyALblbqW_VrZh2r7sPJ8Q6XT2fGbk0dsFg",
-        authDomain: "donghung-3208d.firebaseapp.com",
-        projectId: "donghung-3208d",
-        storageBucket: "donghung-3208d.firebasestorage.app",
-        messagingSenderId: "753379492663",
-        appId: "1:753379492663:web:baff34f2c0bac00e02d0b2"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // 1. Nhận diện máy Admin đang dùng
-    const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
-    document.getElementById('current-admin-device').innerHTML = `
-        <strong>Máy của bạn:</strong> ${navigator.platform} | <strong>ID:</strong> ${myDeviceId}
-    `;
-
-    // 2. Chỉ tải dữ liệu sau khi Auth thành công
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            alert("Vui lòng đăng nhập trước!");
-            window.location.href = "login.html";
-            return;
-        }
+            location.href = "login.html";
+        } else {
+            try {
+                // 2. Lấy dữ liệu học viên từ Firestore
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
 
-        try {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    const currentDeviceId = localStorage.getItem('my_device_id');
+                    const devices = data.devices || {};
 
-            querySnapshot.forEach((userDoc) => {
-                const data = userDoc.data();
-                const uid = userDoc.id;
+                    // 3. KIỂM TRA THIẾT BỊ (Bảo mật cho trang thi)
+                    if (data.device_count >= 1 && !devices[currentDeviceId]) {
+                        alert("🚫 Thiết bị không hợp lệ hoặc đã bị đổi. Bạn sẽ bị đăng xuất.");
+                        await signOut(auth);
+                        location.href = "login.html";
+                        return;
+                    }
 
-                // Lấy ID thiết bị của học viên (nếu có)
-                let deviceIdText = "Chưa đăng nhập máy nào";
-                if (data.devices) {
-                    const ids = Object.keys(data.devices);
-                    if (ids.length > 0) deviceIdText = ids[0]; // Lấy ID đầu tiên
+                    // 4. HIỂN THỊ TÊN (Đảm bảo bạn đã thêm thẻ HTML có id="user-display-name")
+                    const welcomeSection = document.getElementById('welcome-section');
+                    const nameDisplay = document.getElementById('user-display-name');
+                    
+                    if (welcomeSection && nameDisplay) {
+                        nameDisplay.innerText = data.name || "Học viên";
+                        welcomeSection.style.display = "flex"; 
+                    }
+
+                    // Lưu ý: Nếu trang exam.html có hàm khởi tạo câu hỏi (ví dụ: loadQuiz()), 
+                    // bạn nên gọi nó ở đây để đảm bảo tên đã tải xong mới hiện đề.
+
+                } else {
+                    console.warn("Không tìm thấy dữ liệu học viên.");
                 }
-
-                const row = `
-                    <tr>
-                        <td>
-                            <strong>${data.name || 'N/A'}</strong><br>
-                            <small>${data.email}</small>
-                        </td>
-                        <td>
-                            <b>${data.device_count || 0} / 1</b>
-                            <span class="device-id">${deviceIdText}</span>
-                        </td>
-                        <td>
-                            T: ${data.exam_progress?.doboku || 0}% | K: ${data.exam_progress?.kenchiku || 0}%
-                        </td>
-                        <td class="${data.status === 'banned' ? 'status-banned' : 'status-active'}">
-                            ${data.status === 'banned' ? 'Khóa' : 'Mở'}
-                        </td>
-                        <td>
-                            <button class="btn btn-reset" onclick="resetDevice('${uid}')">Reset Máy</button>
-                            <button class="btn ${data.status === 'banned' ? 'btn-unban' : 'btn-ban'}" 
-                                onclick="toggleStatus('${uid}', '${data.status === 'banned' ? 'active' : 'banned'}')">
-                                ${data.status === 'banned' ? 'Mở' : 'Khóa'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                userList.innerHTML += row;
-            });
-
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('adminTable').style.display = 'table';
-
-        } catch (error) {
-            console.error("Lỗi:", error);
-            document.getElementById('loading').innerHTML = "❌ Lỗi tải dữ liệu. Kiểm tra lại Rules.";
+            } catch (error) {
+                console.error("Lỗi xác thực tại trang thi:", error);
+            }
         }
     });
-
-    // Hàm Reset máy
-    window.resetDevice = async (uid) => {
-        if (confirm("Reset thiết bị cho học viên này?")) {
-            await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
-            location.reload();
-        }
-    };
-
-    // Hàm Khóa/Mở
-    window.toggleStatus = async (uid, newStatus) => {
-        if (confirm("Xác nhận thay đổi trạng thái học viên?")) {
-            await updateDoc(doc(db, "users", uid), { status: newStatus });
-            location.reload();
-        }
-    };
 </script>
+  <header class="header">
+    <div class="brand small">
+      <img src="icon-192.png" alt="H" class="logo">
+      <div class="titles">
+        <div class="brand-name"> Quiz APP</div>
+        <div class="subtitle">Trung Tâm Nhật Ngữ </div>
+      </div>
+    </div>
 
+</div>
+    <div class="hud">
+      <span id="timer" class="timer">60:00</span>
+      <button id="submitBtn" class="btn">Nộp bài</button>
+      <a href="index.html" class="btn ghost">🏠Trang chủ</a>
+
+  </header>
+   
+  <main class="container">
+    <div id="quiz" class="card"></div>
+    <div id="result" class="card" style="display:none"></div>
+  </main>
+
+  <button id="redoWrong" class="floating">Làm lại những câu sai</button>
+
+  <footer class="footer">© 2025 • Quiz APP CENTER</footer>
+
+  <!-- 🧰 Đề lý thuyết -->
+  <script src="questions.js"></script>
+  <script src="questions2.js"></script>
+  <script src="questions3.js"></script>
+  <script src="questions4.js"></script>
+  <script src="questions5.js"></script>
+  <script src="questions6.js"></script>
+  <script src="questions7.js"></script>
+  <script src="questions8.js"></script>
+  <script src="questions9.js"></script>
+
+  <!-- 🧰 Đề thực hành nhóm 1 -->
+  <script src="practice1_g1.js"></script>
+  <script src="practice2_g1.js"></script>
+  <script src="practice3_g1.js"></script>
+  <script src="practice4_g1.js"></script>
+
+  <!-- 🧰 Đề thực hành nhóm 2 -->
+  <script src="practice1.js"></script>
+  <script src="practice2.js"></script>
+  <script src="practice3.js"></script>
+  <script src="practice4.js"></script>
+
+  <!-- 🧮 Tạo đề ngẫu nhiên -->
+  <script src="exam_random.js"></script>          <!-- random đề lý thuyết -->
+  <script src="practice_random_g1.js"></script>   <!-- random đề thực hành -->
+  <script src="practice_random_g2.js"></script>   <!-- random đề thực hành -->
+
+
+  <!-- ⚙️ Code xử lý chính -->
+  <script src="exam.js"></script>
+
+
+  <!-- 💅 Style nhỏ -->
+  <style>
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn.ghost {
+      background: #f3f4f6;
+      color: #1e40af;
+      font-weight: bold;
+      border: 1px solid #1e40af;
+    }
+    .btn.ghost:hover { background: #e0e7ff; }
+  </style>
 </body>
 </html>
