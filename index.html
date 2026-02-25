@@ -75,7 +75,7 @@
                                 // Nếu là bản Free mà bấm vào set > 2 hoặc phần thực hành (practice)
                                 if ((setParam && !allowedSets.includes(setParam)) || practiceParam) {
                                     e.preventDefault(); // Ngăn không cho chuyển trang
-                                    alert("🔒 Bộ đề này dành cho tài khoản Premium.\nVui lòng liên hệ Admin để mở khóa toàn bộ kiến thức !");
+                                  document.getElementById('premium-modal').style.display = 'flex';
                                 }
                             }
                         });
@@ -272,6 +272,29 @@
 }
 .exam-list a:hover { background:#e0e7ff; color:#1e40af; }
 </style>
-
+<div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+        <h2 style="color:#1e40af; margin-bottom: 10px;">Mở Khóa Toàn Bộ</h2>
+        <p style="color:#64748b; font-size:14px; line-height:1.6; margin-bottom:20px;">
+            Bạn đã hoàn thành các câu hỏi miễn phí.<br>
+            Để học tiếp toàn bộ đề  , hãy liên hệ Admin để nâng cấp tài khoản Premium chỉ <b>）499k.(VND)</b> .
+        </p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a href="https://zalo.me/09xxxxxxxx" target="_blank" style="background:#0068ff; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
+                💬 Nhắn tin Zalo Admin
+            </a>
+            <a href="https://facebook.com/yourpage" target="_blank" style="background:#1877f2; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
+                🔵 Liên hệ Facebook
+            </a>
+            <a href="https://line.me/ti/p/yourid" target="_blank" style="background:#06c755; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
+                🟢 Kết nối qua Line
+            </a>
+            
+            <button onclick="document.getElementById('premium-modal').style.display='none'" style="margin-top:10px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:13px;">Để sau</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
