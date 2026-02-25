@@ -43,7 +43,7 @@
                     const currentDeviceId = localStorage.getItem('my_device_id');
                     const devices = data.devices || {};
 
-                    // Kiểm tra thiết bị
+                    // 1. Kiểm tra thiết bị
                     if (data.device_count >= 1 && !devices[currentDeviceId]) {
                         alert("🚫 Tài khoản chỉ được dùng trên 1 máy.");
                         await signOut(auth);
@@ -51,14 +51,35 @@
                         return;
                     }
 
-                    // HIỂN THỊ TÊN (Đã sửa ID cho khớp với HTML bên trên)
+                    // 2. Hiển thị tên và Trạng thái gói học
                     const welcomeSection = document.getElementById('welcome-section');
                     const nameDisplay = document.getElementById('user-display-name');
                     
                     if (welcomeSection && nameDisplay) {
-                        nameDisplay.innerText = data.name || "Học viên";
-                        welcomeSection.style.setProperty('display', 'flex', 'important'); // Hiện thanh chào
+                        const statusText = data.isPremium ? '<span style="color: #f59e0b; font-size: 12px;"> [⭐ Premium]</span>' : '<span style="color: #64748b; font-size: 12px;"> [Học thử]</span>';
+                        nameDisplay.innerHTML = (data.name || "Học viên") + statusText;
+                        welcomeSection.style.setProperty('display', 'flex', 'important');
                     }
+
+                    // 3. LOGIC CHẶN TRUY CẬP ĐỀ THI
+                    const isPremium = data.isPremium === true;
+                    const allowedSets = ['1', '2']; // Chỉ cho phép set 1 và 2 (60 câu đầu)
+
+                    document.querySelectorAll('.exam-list a').forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            const url = new URL(link.href);
+                            const setParam = url.searchParams.get('set');
+                            const practiceParam = url.searchParams.get('practice');
+
+                            if (!isPremium) {
+                                // Nếu là bản Free mà bấm vào set > 2 hoặc phần thực hành (practice)
+                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam) {
+                                    e.preventDefault(); // Ngăn không cho chuyển trang
+                                    alert("🔒 Bộ đề này dành cho tài khoản Premium.\nVui lòng liên hệ Admin để mở khóa toàn bộ kiến thức !");
+                                }
+                            }
+                        });
+                    });
 
                 } else {
                     console.warn("Không tìm thấy hồ sơ.");
@@ -68,6 +89,9 @@
             }
         }
     });
+
+    window.logout = logout;
+</script>
 
     window.logout = logout;
 </script>
