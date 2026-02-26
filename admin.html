@@ -6,7 +6,7 @@
     <title>Quản Trị Viên - Toukutei 2</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .admin-info { background: #eff6ff; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2563eb; font-size: 13px; }
         
@@ -18,12 +18,18 @@
         .btn-reset { background: #f59e0b; }
         .btn-ban { background: #ef4444; }
         .btn-unban { background: #10b981; }
-        .btn-premium { background: #8b5cf6; } /* Màu tím cho Premium */
+        .btn-premium { background: #8b5cf6; }
         
         .status-active { color: #059669; font-weight: bold; }
         .status-banned { color: #dc2626; font-weight: bold; }
         .badge-premium { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #f59e0b; }
         .badge-free { background: #f3f4f6; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #d1d5db; }
+        
+        /* Style cho Nhóm */
+        .badge-g1 { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #bbf7d0; }
+        .badge-g2 { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #fef08a; }
+        .group-select { padding: 4px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 12px; margin-top: 5px; cursor: pointer; }
+        
         .device-id { font-family: monospace; font-size: 11px; background: #eee; padding: 2px 4px; display: block; margin-top: 4px; color: #666; }
     </style>
 </head>
@@ -31,23 +37,21 @@
 
 <div class="container">
     <div class="header">
-        <h2>Quản Lý Học Viên</h2>
-        <button class="btn" style="background:#64748b" onclick="location.reload()">Làm mới trang</button>
+        <h2>Quản Lý Học Viên 海洋（かいよう）土木（どぼく）</h2>
+        <button class="btn" style="background:#64748b" onclick="location.reload()">Làm mới danh sách</button>
     </div>
 
-    <div class="admin-info" id="current-admin-device">
-        Đang kiểm tra thiết bị quản trị...
-    </div>
+    <div class="admin-info" id="current-admin-device">Đang kiểm tra thiết bị...</div>
 
-    <div id="loading" style="text-align:center; padding: 20px;">🚀 Đang tải danh sách học viên...</div>
+    <div id="loading" style="text-align:center; padding: 20px;">🚀 Đang lấy dữ liệu từ hệ thống...</div>
 
     <table id="adminTable" style="display:none;">
         <thead>
             <tr>
                 <th>Học viên</th>
+                <th>Phân Nhóm</th>
                 <th>Gói học</th>
-                <th>Thiết bị (ID)</th>
-                <th>Tiến độ</th>
+                <th>Thiết bị</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -74,17 +78,12 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    // Hiển thị thiết bị hiện tại
     const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
-    document.getElementById('current-admin-device').innerHTML = `
-        <strong>Máy của bạn:</strong> ${navigator.platform} | <strong>ID:</strong> ${myDeviceId}
-    `;
+    document.getElementById('current-admin-device').innerHTML = `Máy quản trị: ${navigator.platform} | ID: ${myDeviceId}`;
 
     onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            alert("Vui lòng đăng nhập trước!");
-            window.location.href = "login.html";
-            return;
-        }
+        if (!user) { window.location.href = "login.html"; return; }
 
         try {
             const querySnapshot = await getDocs(collection(db, "users"));
@@ -94,8 +93,9 @@
             querySnapshot.forEach((userDoc) => {
                 const data = userDoc.data();
                 const uid = userDoc.id;
+                const userGroup = data.group || "1";
 
-                let deviceIdText = "N/A";
+                let deviceIdText = "Trống";
                 if (data.devices) {
                     const ids = Object.keys(data.devices);
                     if (ids.length > 0) deviceIdText = ids[0];
@@ -108,28 +108,30 @@
                             <small>${data.email}</small>
                         </td>
                         <td>
-                            ${data.isPremium ? '<span class="badge-premium">⭐ FULL</span>' : '<span class="badge-free">Bản 60 câu</span>'}
+                            ${userGroup === '1' ? '<span class="badge-g1">NHÓM 1</span>' : '<span class="badge-g2">NHÓM 2</span>'}<br>
+                            <select class="group-select" onchange="window.changeGroup('${uid}', this.value)">
+                                <option value="1" ${userGroup === '1' ? 'selected' : ''}>Chuyển G1</option>
+                                <option value="2" ${userGroup === '2' ? 'selected' : ''}>Chuyển G2</option>
+                            </select>
                         </td>
                         <td>
-                            <b>${data.device_count || 0} / 1</b>
+                            ${data.isPremium ? '<span class="badge-premium">⭐ PREMIUM</span>' : '<span class="badge-free">FREE (90c)</span>'}
+                        </td>
+                        <td>
+                            <b>${data.device_count || 0}/1</b>
                             <span class="device-id">${deviceIdText}</span>
                         </td>
-                        <td>
-                            T: ${data.exam_progress?.doboku || 0}% | K: ${data.exam_progress?.kenchiku || 0}%
-                        </td>
                         <td class="${data.status === 'banned' ? 'status-banned' : 'status-active'}">
-                            ${data.status === 'banned' ? 'Khóa' : 'Mở'}
+                            ${data.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
                         </td>
                         <td>
-                            <button class="btn btn-premium" onclick="togglePremium('${uid}', ${!data.isPremium})">
-                                ${data.isPremium ? 'Khóa Full' : 'Mở Full'}
+                            <button class="btn btn-premium" onclick="window.togglePremium('${uid}', ${!data.isPremium})">
+                                ${data.isPremium ? 'Hạ cấp' : 'Mở Premium'}
                             </button>
-                            
-                            <button class="btn btn-reset" onclick="resetDevice('${uid}')">Reset Máy</button>
-                            
+                            <button class="btn btn-reset" onclick="window.resetDevice('${uid}')">Reset Máy</button>
                             <button class="btn ${data.status === 'banned' ? 'btn-unban' : 'btn-ban'}" 
-                                onclick="toggleStatus('${uid}', '${data.status === 'banned' ? 'active' : 'banned'}')">
-                                ${data.status === 'banned' ? 'Mở' : 'Khóa'}
+                                    onclick="window.toggleStatus('${uid}', '${data.status === 'banned' ? 'active' : 'banned'}')">
+                                ${data.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
                             </button>
                         </td>
                     </tr>
@@ -141,15 +143,25 @@
             document.getElementById('adminTable').style.display = 'table';
 
         } catch (error) {
-            console.error("Lỗi:", error);
-            document.getElementById('loading').innerHTML = "❌ Lỗi tải dữ liệu.";
+            document.getElementById('loading').innerHTML = "❌ Lỗi: " + error.message;
         }
     });
 
-    // Hàm Mở/Khóa Premium
+    // --- HÀM XỬ LÝ DỮ LIỆU ---
+
+    window.changeGroup = async (uid, newGroup) => {
+        if (confirm(`Chuyển học viên sang Nhóm ${newGroup}?`)) {
+            try {
+                await updateDoc(doc(db, "users", uid), { group: newGroup });
+                alert("Đã đổi nhóm thành công!");
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+    };
+
     window.togglePremium = async (uid, newStatus) => {
-        const text = newStatus ? "MỞ KHÓA TOÀN BỘ câu hỏi" : "HẠ CẤP xuống bản 60 câu";
-        if (confirm(`Bạn có chắc muốn ${text} cho học viên này?`)) {
+        const text = newStatus ? "CẤP QUYỀN PREMIUM (Mở toàn bộ đề)" : "HỦY QUYỀN PREMIUM (Về bản Free)";
+        if (confirm(text)) {
             try {
                 await updateDoc(doc(db, "users", uid), { isPremium: newStatus });
                 location.reload();
@@ -158,16 +170,21 @@
     };
 
     window.resetDevice = async (uid) => {
-        if (confirm("Reset thiết bị cho học viên này?")) {
-            await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
-            location.reload();
+        if (confirm("Reset thiết bị? Học viên có thể đăng nhập trên máy mới.")) {
+            try {
+                await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
+                alert("Đã reset!");
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
         }
     };
 
     window.toggleStatus = async (uid, newStatus) => {
-        if (confirm("Xác nhận thay đổi trạng thái?")) {
-            await updateDoc(doc(db, "users", uid), { status: newStatus });
-            location.reload();
+        if (confirm("Xác nhận thay đổi trạng thái đăng nhập?")) {
+            try {
+                await updateDoc(doc(db, "users", uid), { status: newStatus });
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
         }
     };
 </script>
