@@ -51,31 +51,48 @@
                         return;
                     }
 
-                    // 2. Hiển thị tên và Trạng thái gói học
+                    // 2. Lấy thông tin Premium và Nhóm
+                    const isPremium = data.isPremium === true;
+                    const userGroup = data.group || "1"; // Mặc định nhóm 1 nếu chưa có dữ liệu
+
+                    // 3. Hiển thị tên, trạng thái và Nhóm
                     const welcomeSection = document.getElementById('welcome-section');
                     const nameDisplay = document.getElementById('user-display-name');
                     
                     if (welcomeSection && nameDisplay) {
-                        const statusText = data.isPremium ? '<span style="color: #f59e0b; font-size: 12px;"> [⭐ Premium]</span>' : '<span style="color: #64748b; font-size: 12px;"> [Học thử]</span>';
-                        nameDisplay.innerHTML = (data.name || "Học viên") + statusText;
+                        const statusBadge = isPremium 
+                            ? `<span style="color: #f59e0b; font-size: 12px;"> [⭐ Premium - Nhóm ${userGroup}]</span>` 
+                            : `<span style="color: #64748b; font-size: 12px;"> [Học thử - Nhóm ${userGroup}]</span>`;
+                        
+                        nameDisplay.innerHTML = (data.name || "Học viên") + statusBadge;
                         welcomeSection.style.setProperty('display', 'flex', 'important');
                     }
 
-                    // 3. LOGIC CHẶN TRUY CẬP ĐỀ THI
-                    const isPremium = data.isPremium === true;
-                    const allowedSets = ['1', '2', '3']; // Chỉ cho phép set 1 và 2 và 3 (90 câu đầu)
+                    // 4. LOGIC CHẶN TRUY CẬP ĐỀ THI
+                    const allowedSets = ['1', '2', '3']; // 90 câu lý thuyết đầu mở miễn phí
 
                     document.querySelectorAll('.exam-list a').forEach(link => {
                         link.addEventListener('click', (e) => {
-                            const url = new URL(link.href);
+                            const url = new URL(link.href, window.location.origin);
                             const setParam = url.searchParams.get('set');
                             const practiceParam = url.searchParams.get('practice');
 
+                            // A. NẾU LÀ TÀI KHOẢN FREE
                             if (!isPremium) {
-                                // Nếu là bản Free mà bấm vào set > 2 hoặc phần thực hành (practice)
-                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam) {
-                                    e.preventDefault(); // Ngăn không cho chuyển trang
-                                  document.getElementById('premium-modal').style.display = 'flex';
+                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
+                                    e.preventDefault();
+                                    document.getElementById('premium-modal').style.display = 'flex';
+                                    return;
+                                }
+                            }
+
+                            // B. NẾU LÀ PREMIUM: Chặn chéo nhóm thực hành
+                            if (isPremium && practiceParam) {
+                                const requiredG = "g" + userGroup; // Ví dụ: "g1" hoặc "g2"
+                                
+                                if (!practiceParam.includes(requiredG)) {
+                                    e.preventDefault();
+                                    alert(`🔒 Bạn đăng ký Nhóm ${userGroup}. Không thể vào đề thực hành của nhóm khác!\nLiên hệ Admin nếu bạn muốn đổi nhóm.`);
                                 }
                             }
                         });
@@ -92,7 +109,6 @@
 
     window.logout = logout;
 </script>
-
   
 
 <header class="header">
