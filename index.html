@@ -68,35 +68,46 @@
                         welcomeSection.style.setProperty('display', 'flex', 'important');
                     }
 
-                    // 4. LOGIC CHẶN TRUY CẬP ĐỀ THI
-                    const allowedSets = ['1', '2', '3']; // 90 câu lý thuyết đầu mở miễn phí
+// Sau khi đã lấy được data từ userSnap.exists()
+const isPremium = data.isPremium === true;
+const userGroup = data.group || "1";
+const allowedSets = ['1', '2', '3']; // Các set lý thuyết miễn phí
 
-                    document.querySelectorAll('.exam-list a').forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            const url = new URL(link.href, window.location.origin);
-                            const setParam = url.searchParams.get('set');
-                            const practiceParam = url.searchParams.get('practice');
+// --- LOGIC HIỂN THỊ Ổ KHÓA ---
+document.querySelectorAll('.exam-list a').forEach(link => {
+    const url = new URL(link.href, window.location.origin);
+    const setParam = url.searchParams.get('set');
+    const practiceParam = url.searchParams.get('practice');
+    let isLocked = false;
 
-                            // A. NẾU LÀ TÀI KHOẢN FREE
-                            if (!isPremium) {
-                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
-                                    e.preventDefault();
-                                    document.getElementById('premium-modal').style.display = 'flex';
-                                    return;
-                                }
-                            }
+    // 1. Kiểm tra khóa cho bản FREE
+    if (!isPremium) {
+        // Khóa tất cả trừ set 1,2,3
+        if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
+            isLocked = true;
+        }
+    } 
+    // 2. Kiểm tra khóa theo Nhóm cho bản PREMIUM
+    else if (isPremium && practiceParam) {
+        const requiredG = "g" + userGroup;
+        if (!practiceParam.includes(requiredG)) {
+            isLocked = true;
+        }
+    }
 
-                            // B. NẾU LÀ PREMIUM: Chặn chéo nhóm thực hành
-                            if (isPremium && practiceParam) {
-                                const requiredG = "g" + userGroup; // Ví dụ: "g1" hoặc "g2"
-                                
-                                if (!practiceParam.includes(requiredG)) {
-                                    e.preventDefault();
-                                    alert(`🔒 Bạn đăng ký Nhóm ${userGroup}. Không thể vào đề thực hành của nhóm khác!\nLiên hệ Admin nếu bạn muốn đổi nhóm.`);
-                                }
-                            }
-                        });
-                    });
+    // Nếu bị khóa thì thêm class CSS và chặn bấm
+    if (isLocked) {
+        link.classList.add('exam-locked');
+        link.addEventListener('click', (e) => {
+            e.preventDefault(); // Chặn chuyển trang
+            if (!isPremium) {
+                document.getElementById('premium-modal').style.display = 'flex';
+            } else {
+                alert(`🔒 Đề này thuộc Nhóm khác. Bạn đang ở Nhóm ${userGroup}!`);
+            }
+        });
+    }
+});
 
                 } else {
                     console.warn("Không tìm thấy hồ sơ.");
@@ -116,7 +127,7 @@
     <img src="icon-192.png" alt="H" class="logo">
     <div class="titles">
       <div class="brand-name">Quiz APP</div>
-      <div class="subtitle">Trung tâm nhật ngữ đồng hành và phát triển</div>
+      <div class="subtitle"><b>Luyện đề toukutei gino2 xây dựng cấp tốc</b></div>
     </div>
   </div>
   <div id="welcome-section" style="padding: 12px 20px; background: #fff; border-bottom: 2px solid #1e40af; display: none; display: flex; justify-content: space-between; align-items: center;">
@@ -239,7 +250,7 @@
 
 <footer>
   <div class="admin-contact-section">
-    <p>💡 Cần hỗ trợ <b></b> </b>? Liên hệ Admin:</p>
+    <p>💡<b> Cần hỗ trợ  </b>? Liên hệ Admin:</p>
     <div class="contact-icons">
         <a href="#" id="zalo-link" target="_blank" class="contact-item">
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
@@ -253,9 +264,10 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="Line">
             <span>Line</span>
         </a>
+       <div lass="footer">© 2025 • Quiz APP  CENTER</div>
     </div>
 </div>
-  <div lass="footer">© 2025 • Quiz APP  CENTER</div>
+
 </footer>
 
 <!-- 💅 Style bổ sung -->
@@ -336,6 +348,26 @@
     font-size: 12px;
     font-weight: bold;
     color: #1e293b;
+}
+  /* Style cho các bộ đề bị khóa */
+.exam-locked {
+    opacity: 0.6; /* Làm mờ */
+    pointer-events: none; /* Không cho bấm vào link (dự phòng) */
+    position: relative;
+    background: #f1f5f9 !important; /* Đổi màu nền xám */
+    border-color: #cbd5e1 !important;
+}
+
+/* Thêm biểu tượng ổ khóa vào phía sau chữ */
+.exam-locked::after {
+    content: " 🔒"; 
+    font-size: 14px;
+    float: right;
+}
+
+/* Hiệu ứng cho chữ mờ hơn */
+.exam-locked span, .exam-locked a {
+    color: #94a3b8 !important;
 }
 </style>
 <div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
