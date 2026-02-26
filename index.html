@@ -68,46 +68,35 @@
                         welcomeSection.style.setProperty('display', 'flex', 'important');
                     }
 
-// Sau khi đã lấy được data từ userSnap.exists()
-const isPremium = data.isPremium === true;
-const userGroup = data.group || "1";
-const allowedSets = ['1', '2', '3']; // Các set lý thuyết miễn phí
+                    // 4. LOGIC CHẶN TRUY CẬP ĐỀ THI
+                    const allowedSets = ['1', '2', '3']; // 90 câu lý thuyết đầu mở miễn phí
 
-// --- LOGIC HIỂN THỊ Ổ KHÓA ---
-document.querySelectorAll('.exam-list a').forEach(link => {
-    const url = new URL(link.href, window.location.origin);
-    const setParam = url.searchParams.get('set');
-    const practiceParam = url.searchParams.get('practice');
-    let isLocked = false;
+                    document.querySelectorAll('.exam-list a').forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            const url = new URL(link.href, window.location.origin);
+                            const setParam = url.searchParams.get('set');
+                            const practiceParam = url.searchParams.get('practice');
 
-    // 1. Kiểm tra khóa cho bản FREE
-    if (!isPremium) {
-        // Khóa tất cả trừ set 1,2,3
-        if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
-            isLocked = true;
-        }
-    } 
-    // 2. Kiểm tra khóa theo Nhóm cho bản PREMIUM
-    else if (isPremium && practiceParam) {
-        const requiredG = "g" + userGroup;
-        if (!practiceParam.includes(requiredG)) {
-            isLocked = true;
-        }
-    }
+                            // A. NẾU LÀ TÀI KHOẢN FREE
+                            if (!isPremium) {
+                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
+                                    e.preventDefault();
+                                    document.getElementById('premium-modal').style.display = 'flex';
+                                    return;
+                                }
+                            }
 
-    // Nếu bị khóa thì thêm class CSS và chặn bấm
-    if (isLocked) {
-        link.classList.add('exam-locked');
-        link.addEventListener('click', (e) => {
-            e.preventDefault(); // Chặn chuyển trang
-            if (!isPremium) {
-                document.getElementById('premium-modal').style.display = 'flex';
-            } else {
-                alert(`🔒 Đề này thuộc Nhóm khác. Bạn đang ở Nhóm ${userGroup}!`);
-            }
-        });
-    }
-});
+                            // B. NẾU LÀ PREMIUM: Chặn chéo nhóm thực hành
+                            if (isPremium && practiceParam) {
+                                const requiredG = "g" + userGroup; // Ví dụ: "g1" hoặc "g2"
+                                
+                                if (!practiceParam.includes(requiredG)) {
+                                    e.preventDefault();
+                                    alert(`🔒 Bạn đăng ký Nhóm ${userGroup}. Không thể vào đề thực hành của nhóm khác!\nLiên hệ Admin nếu bạn muốn đổi nhóm.`);
+                                }
+                            }
+                        });
+                    });
 
                 } else {
                     console.warn("Không tìm thấy hồ sơ.");
