@@ -51,55 +51,62 @@
                         return;
                     }
 
-                    // 2. Lấy thông tin Premium và Nhóm
+                    // 2. Thông tin tài khoản
                     const isPremium = data.isPremium === true;
-                    const userGroup = data.group || "1"; // Mặc định nhóm 1 nếu chưa có dữ liệu
+                    const userGroup = data.group || "1";
+                    const allowedSets = ['1', '2', '3']; // Miễn phí 90 câu đầu
 
-                    // 3. Hiển thị tên, trạng thái và Nhóm
-                    const welcomeSection = document.getElementById('welcome-section');
+                    // 3. Hiển thị Header
                     const nameDisplay = document.getElementById('user-display-name');
-                    
-                    if (welcomeSection && nameDisplay) {
+                    if (nameDisplay) {
                         const statusBadge = isPremium 
-                            ? `<span style="color: #f59e0b; font-size: 12px;"> [⭐ Premium - Nhóm ${userGroup}]</span>` 
-                            : `<span style="color: #64748b; font-size: 12px;"> [Học thử - Nhóm ${userGroup}]</span>`;
-                        
+                            ? `<span style="color: #f59e0b; font-size: 12px;"> [⭐ Premium - G${userGroup}]</span>` 
+                            : `<span style="color: #64748b; font-size: 12px;"> [Học thử]</span>`;
                         nameDisplay.innerHTML = (data.name || "Học viên") + statusBadge;
-                        welcomeSection.style.setProperty('display', 'flex', 'important');
+                        document.getElementById('welcome-section').style.setProperty('display', 'flex', 'important');
                     }
 
-                    // 4. LOGIC CHẶN TRUY CẬP ĐỀ THI
-                    const allowedSets = ['1', '2', '3']; // 90 câu lý thuyết đầu mở miễn phí
+                    // 4. Cập nhật nội dung tin nhắn Admin (Tự động điền tên và nhóm)
+                    const msg = encodeURIComponent(`Chào Admin, mình là ${data.name || 'Học viên'} (Nhóm ${userGroup}). Mình muốn hỗ trợ về Premium.`);
+                    document.getElementById('zalo-link').href = `https://zalo.me/09xxxxxxxx?text=${msg}`;
+                    document.getElementById('fb-link').href = `https://m.me/yourpage?text=${msg}`;
 
+                    // 5. LOGIC KHÓA ĐỀ THI (Làm mờ & Gắn ổ khóa)
                     document.querySelectorAll('.exam-list a').forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            const url = new URL(link.href, window.location.origin);
-                            const setParam = url.searchParams.get('set');
-                            const practiceParam = url.searchParams.get('practice');
+                        const url = new URL(link.href, window.location.origin);
+                        const setParam = url.searchParams.get('set');
+                        const practiceParam = url.searchParams.get('practice');
+                        
+                        let isLocked = false;
 
-                            // A. NẾU LÀ TÀI KHOẢN FREE
-                            if (!isPremium) {
-                                if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
-                                    e.preventDefault();
+                        // Kiểm tra nếu là bản FREE
+                        if (!isPremium) {
+                            if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
+                                isLocked = true;
+                            }
+                        } 
+                        // Kiểm tra nếu là Premium nhưng sai nhóm thực hành
+                        else if (isPremium && practiceParam) {
+                            const requiredG = "g" + userGroup;
+                            if (!practiceParam.includes(requiredG)) {
+                                isLocked = true;
+                            }
+                        }
+
+                        // Thực thi hiệu ứng khóa
+                        if (isLocked) {
+                            link.classList.add('exam-locked'); // Thêm class CSS mờ & khóa
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault(); // Chặn truy cập
+                                if (!isPremium) {
                                     document.getElementById('premium-modal').style.display = 'flex';
-                                    return;
+                                } else {
+                                    alert(`🔒 Bạn đang thuộc Nhóm ${userGroup}. Đề này dành cho nhóm khác!`);
                                 }
-                            }
-
-                            // B. NẾU LÀ PREMIUM: Chặn chéo nhóm thực hành
-                            if (isPremium && practiceParam) {
-                                const requiredG = "g" + userGroup; // Ví dụ: "g1" hoặc "g2"
-                                
-                                if (!practiceParam.includes(requiredG)) {
-                                    e.preventDefault();
-                                    alert(`🔒 Bạn đăng ký Nhóm ${userGroup}. Không thể vào đề thực hành của nhóm khác!\nLiên hệ Admin nếu bạn muốn đổi nhóm.`);
-                                }
-                            }
-                        });
+                            });
+                        }
                     });
 
-                } else {
-                    console.warn("Không tìm thấy hồ sơ.");
                 }
             } catch (error) {
                 console.error("Lỗi:", error);
@@ -339,25 +346,27 @@
     font-weight: bold;
     color: #1e293b;
 }
-  /* Style cho các bộ đề bị khóa */
 .exam-locked {
-    opacity: 0.6; /* Làm mờ */
-    pointer-events: none; /* Không cho bấm vào link (dự phòng) */
-    position: relative;
-    background: #f1f5f9 !important; /* Đổi màu nền xám */
-    border-color: #cbd5e1 !important;
-}
-
-/* Thêm biểu tượng ổ khóa vào phía sau chữ */
-.exam-locked::after {
-    content: " 🔒"; 
-    font-size: 14px;
-    float: right;
-}
-
-/* Hiệu ứng cho chữ mờ hơn */
-.exam-locked span, .exam-locked a {
+    opacity: 0.5 !important;
+    background: #f1f5f9 !important;
     color: #94a3b8 !important;
+    border: 1px dashed #cbd5e1 !important;
+    cursor: not-allowed !important;
+    position: relative;
+    pointer-events: auto !important; /* Quan trọng: Để vẫn nhận được sự kiện Click hiện thông báo */
+}
+
+.exam-locked::after {
+    content: "🔒 Khóa";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #64748b;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 </style>
 <div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
