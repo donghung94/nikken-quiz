@@ -54,7 +54,7 @@
                     // 2. Thông tin tài khoản
                     const isPremium = data.isPremium === true;
                     const userGroup = data.group || "1";
-                    const allowedSets = ['1', '2', '3']; // Miễn phí 90 câu đầu
+                    const allowedSets = ['1', '2', '3'];
 
                     // 3. Hiển thị Header
                     const nameDisplay = document.getElementById('user-display-name');
@@ -66,12 +66,20 @@
                         document.getElementById('welcome-section').style.setProperty('display', 'flex', 'important');
                     }
 
-                    // 4. Cập nhật nội dung tin nhắn Admin (Tự động điền tên và nhóm)
+                    // 4. TẠO TIN NHẮN TỰ ĐỘNG & CẬP NHẬT LINK (Sửa icon FB tại đây)
                     const msg = encodeURIComponent(`Chào Admin, mình là ${data.name || 'Học viên'} (Nhóm ${userGroup}). Mình muốn hỗ trợ về Premium.`);
-                    document.getElementById('zalo-link').href = `https://zalo.me/09xxxxxxxx?text=${msg}`;
-                    document.getElementById('fb-link').href = `https://m.me/yourpage?text=${msg}`;
+                    
+                    // Link cho Footer
+                    if(document.getElementById('zalo-link')) document.getElementById('zalo-link').href = `https://zalo.me/09xxxxxxxx?text=${msg}`;
+                    if(document.getElementById('fb-link')) document.getElementById('fb-link').href = `https://m.me/yourpage?text=${msg}`;
+                    if(document.getElementById('line-link')) document.getElementById('line-link').href = `https://line.me/ti/p/~yourid`;
 
-                    // 5. LOGIC KHÓA ĐỀ THI (Làm mờ & Gắn ổ khóa)
+                    // Link cho Premium Modal (Cập nhật để không bị lỗi)
+                    if(document.getElementById('modal-zalo')) document.getElementById('modal-zalo').href = `https://zalo.me/09xxxxxxxx?text=${msg}`;
+                    if(document.getElementById('modal-fb')) document.getElementById('modal-fb').href = `https://m.me/yourpage?text=${msg}`;
+                    if(document.getElementById('modal-line')) document.getElementById('modal-line').href = `https://line.me/ti/p/~yourid`;
+
+                    // 5. LOGIC KHÓA ĐỀ THI
                     document.querySelectorAll('.exam-list a').forEach(link => {
                         const url = new URL(link.href, window.location.origin);
                         const setParam = url.searchParams.get('set');
@@ -79,13 +87,11 @@
                         
                         let isLocked = false;
 
-                        // Kiểm tra nếu là bản FREE
                         if (!isPremium) {
                             if ((setParam && !allowedSets.includes(setParam)) || practiceParam || setParam === 'randomExam') {
                                 isLocked = true;
                             }
                         } 
-                        // Kiểm tra nếu là Premium nhưng sai nhóm thực hành
                         else if (isPremium && practiceParam) {
                             const requiredG = "g" + userGroup;
                             if (!practiceParam.includes(requiredG)) {
@@ -93,11 +99,10 @@
                             }
                         }
 
-                        // Thực thi hiệu ứng khóa
                         if (isLocked) {
-                            link.classList.add('exam-locked'); // Thêm class CSS mờ & khóa
+                            link.classList.add('exam-locked');
                             link.addEventListener('click', (e) => {
-                                e.preventDefault(); // Chặn truy cập
+                                e.preventDefault();
                                 if (!isPremium) {
                                     document.getElementById('premium-modal').style.display = 'flex';
                                 } else {
@@ -106,7 +111,6 @@
                             });
                         }
                     });
-
                 }
             } catch (error) {
                 console.error("Lỗi:", error);
@@ -369,27 +373,36 @@
     border-radius: 4px;
 }
 </style>
-<div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
-    <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-        <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
-        <h2 style="color:#1e40af; margin-bottom: 10px;">Mở Khóa Toàn Bộ</h2>
-        <p style="color:#64748b; font-size:14px; line-height:1.6; margin-bottom:20px;">
+<div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div style="background:white; width:90%; max-width:380px; padding:30px; border-radius:20px; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative;">
+        
+        <div style="font-size: 60px; margin-bottom: 10px;">🔒</div>
+        
+        <h2 style="color:#1e40af; margin: 0 0 10px 0; font-size: 22px;">Mở Khóa Toàn Bộ</h2>
+        
+        <p style="color:#64748b; font-size:14px; line-height:1.6; margin-bottom:25px;">
             Bạn đã hoàn thành các câu hỏi miễn phí.<br>
-            Để học tiếp toàn bộ đề  , hãy liên hệ Admin để nâng cấp tài khoản Premium chỉ <b>）499k.(VND)</b> .
+            Nâng cấp <b>Premium</b> để học toàn bộ đề thi <br>
+             chỉ với <b>499k (VND)</b>.
         </p>
         
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <a href="https://zalo.me/09xxxxxxxx" target="_blank" style="background:#0068ff; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
-                💬 Nhắn tin Zalo Admin
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="#" id="modal-zalo" target="_blank" style="background:#0068ff; color:white; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:12px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" width="24" height="24" style="border-radius:4px;">
+                Nhắn tin Zalo Admin
             </a>
-            <a href="https://facebook.com/yourpage" target="_blank" style="background:#1877f2; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
-                🔵 Liên hệ Facebook
+
+            <a href="#" id="modal-fb" target="_blank" style="background:#1877f2; color:white; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:12px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" width="24" height="24">
+                Liên hệ Facebook
             </a>
-            <a href="https://line.me/ti/p/yourid" target="_blank" style="background:#06c755; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
-                🟢 Kết nối qua Line
+
+            <a href="#" id="modal-line" target="_blank" style="background:#06c755; color:white; padding:12px; border-radius:10px; text-decoration:none; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:12px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" width="24" height="24">
+                Kết nối qua Line
             </a>
             
-            <button onclick="document.getElementById('premium-modal').style.display='none'" style="margin-top:10px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:13px;">Để sau</button>
+            <button onclick="document.getElementById('premium-modal').style.display='none'" style="margin-top:10px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:14px; text-decoration: underline;">Để sau</button>
         </div>
     </div>
 </div>
