@@ -1,70 +1,100 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prometric Mock Test - Tokutei Gino 2</title>
-  <style>
-    /* Style mô phỏng Prometric */
-    body { background-color: #e2e8f0; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; }
-    .prometric-container { display: flex; flex-direction: column; height: 100vh; }
-    
-    .pro-header { background: #334155; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .pro-header .test-name { font-weight: bold; font-size: 14px; }
-    
-    .pro-main { display: flex; flex: 1; overflow: hidden; }
-    
-    .pro-sidebar { width: 220px; background: #f1f5f9; border-right: 2px solid #cbd5e1; padding: 15px; overflow-y: auto; }
-    .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .q-num { 
-        width: 40px; height: 40px; border: 1px solid #94a3b8; background: white; 
-        display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px;
-    }
-    .q-num.active { border: 3px solid #1e40af; font-weight: bold; }
-    .q-num.done { background: #94a3b8; color: white; }
-    .q-num.flagged { background: #facc15; }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prometric Mock Test - Tokutei Gino 2</title>
+    <style>
+        :root {
+            --pro-blue: #1e40af;
+            --pro-dark: #334155;
+            --pro-bg: #e2e8f0;
+            --pro-border: #cbd5e1;
+            --pro-flag: #facc15;
+        }
 
-    .pro-content { flex: 1; padding: 40px; overflow-y: auto; background: white; position: relative; }
-    .question-box { max-width: 800px; margin: 0 auto; }
-    .pro-opt { 
-        border: 1px solid #cbd5e1; padding: 15px; margin: 10px 0; cursor: pointer; 
-        border-radius: 4px; display: flex; align-items: center;
-    }
-    .pro-opt:hover { background: #f8fafc; }
-    .pro-opt.selected { background: #dbeafe; border-color: #2563eb; font-weight: bold; }
+        body { 
+            background-color: var(--pro-bg); 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; padding: 0; overflow: hidden; 
+            user-select: none; /* Chống copy đề thi */
+        }
 
-    .pro-footer { background: #f1f5f9; padding: 15px 40px; border-top: 2px solid #cbd5e1; display: flex; justify-content: space-between; }
-    .btn-pro { background: #334155; color: white; border: none; padding: 10px 25px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    .btn-pro:disabled { background: #cbd5e1; cursor: not-allowed; }
-    .btn-flag { background: #facc15; color: #000; }
+        .prometric-container { display: flex; flex-direction: column; height: 100vh; }
+        
+        /* Header */
+        .pro-header { 
+            background: var(--pro-dark); color: white; padding: 12px 25px; 
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
 
-    /* Màn hình kết quả */
-    #result-screen {
-        display: none; position: fixed; inset: 0; background: white; z-index: 9999; 
-        overflow-y: auto; padding: 40px;
-    }
-    .result-card { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .wrong-item { border-bottom: 1px solid #e2e8f0; padding: 20px 0; }
-    .wrong-item:last-child { border-bottom: none; }
-    .ruby-text rt { font-size: 0.6em; color: #64748b; }
-  </style>
+        .pro-main { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar */
+        .pro-sidebar { 
+            width: 240px; background: #f1f5f9; border-right: 2px solid var(--pro-border); 
+            padding: 20px; overflow-y: auto; 
+        }
+        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .q-num { 
+            width: 42px; height: 42px; border: 1px solid #94a3b8; background: white; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 14px; border-radius: 4px; transition: 0.2s;
+        }
+        .q-num.active { border: 3px solid var(--pro-blue); font-weight: bold; color: var(--pro-blue); }
+        .q-num.done { background: #64748b; color: white; border-color: #64748b; }
+        .q-num.flagged { background: var(--pro-flag); color: black; border-color: #eab308; font-weight: bold; }
+
+        /* Question Content */
+        .pro-content { flex: 1; padding: 50px; overflow-y: auto; background: white; display: flex; justify-content: center; }
+        .question-box { width: 100%; max-width: 850px; }
+        
+        .pro-opt { 
+            border: 2px solid #e2e8f0; padding: 18px; margin: 12px 0; 
+            cursor: pointer; border-radius: 8px; display: flex; 
+            align-items: center; transition: all 0.2s; font-size: 17px;
+        }
+        .pro-opt:hover { background: #f1f5f9; }
+        .pro-opt.selected { background: #eff6ff; border-color: var(--pro-blue); color: var(--pro-blue); font-weight: 500; }
+
+        /* Footer */
+        .pro-footer { 
+            background: #f8fafc; padding: 15px 50px; border-top: 2px solid var(--pro-border); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-pro { background: var(--pro-dark); color: white; border: none; padding: 12px 30px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .btn-pro:disabled { background: #cbd5e1; color: #94a3b8; }
+        .btn-flag { background: var(--pro-flag); color: #000; }
+
+        /* Result Screen */
+        #result-screen {
+            display: none; position: fixed; inset: 0; background: #f8fafc; 
+            z-index: 9999; overflow-y: auto; padding: 40px 20px;
+        }
+        .result-card { max-width: 900px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .wrong-item { border-bottom: 1px solid #e2e8f0; padding: 20px 0; }
+        
+        /* Furigana & Typography */
+        ruby rt { font-size: 11px; color: #64748b; font-weight: normal; }
+    </style>
 </head>
 <body>
 
 <div class="prometric-container">
     <header class="pro-header">
-        <div class="test-name">特定（とくてい）技能（ぎのう）2級（きゅう） - MOCK EXAM</div>
-        <div id="pro-timer" style="font-size: 20px; font-family: monospace;">60:00</div>
+        <div class="test-name">特定（とくてい）技能（ぎのう）2級（きゅう） - LÝ THUYẾT MOCK EXAM</div>
+        <div id="pro-timer" style="font-size: 24px; font-family: monospace; color: #fbbf24;">60:00</div>
         <button class="btn-pro" onclick="submitExam()" style="background: #ef4444;">Nộp bài (Submit)</button>
     </header>
 
     <div class="pro-main">
         <aside class="pro-sidebar">
             <div class="q-grid" id="q-grid"></div>
-            <div style="margin-top: 20px; font-size: 12px; color: #64748b; line-height: 2;">
-                <div><span style="display:inline-block; width:12px; height:12px; background:white; border:1px solid #94a3b8;"></span> Trống</div>
-                <div><span style="display:inline-block; width:12px; height:12px; background:#94a3b8;"></span> Đã làm</div>
-                <div><span style="display:inline-block; width:12px; height:12px; background:#facc15;"></span> Đánh dấu (🚩)</div>
+            <div style="margin-top: 30px; font-size: 12px; color: #64748b; line-height: 2.2; border-top: 1px solid #ddd; padding-top: 15px;">
+                <div><span style="display:inline-block; width:12px; height:12px; background:white; border:1px solid #94a3b8; margin-right: 5px;"></span> Trống (Unanswered)</div>
+                <div><span style="display:inline-block; width:12px; height:12px; background:#64748b; margin-right: 5px;"></span> Đã làm (Answered)</div>
+                <div><span style="display:inline-block; width:12px; height:12px; background:#facc15; margin-right: 5px;"></span> Đánh dấu (🚩 Flagged)</div>
             </div>
         </aside>
 
@@ -74,9 +104,9 @@
     </div>
 
     <footer class="pro-footer">
-        <button id="btn-flag" class="btn-pro btn-flag">🚩 Đánh dấu (Review)</button>
+        <button id="btn-flag" class="btn-pro btn-flag">🚩 Đánh dấu (Flag for Review)</button>
         <div>
-            <button id="btn-prev" class="btn-pro">Quay lại (Back)</button>
+            <button id="btn-prev" class="btn-pro" style="margin-right: 10px;">Quay lại (Back)</button>
             <button id="btn-next" class="btn-pro">Tiếp theo (Next)</button>
         </div>
     </footer>
@@ -84,45 +114,129 @@
 
 <div id="result-screen">
     <div class="result-card">
-        <h1 style="text-align: center; color: #1e40af; margin-bottom: 5px;">KẾT QUẢ THI THỬ</h1>
-        <div id="score-percent" style="text-align: center; font-size: 48px; font-weight: bold; color: #ef4444;">0%</div>
-        <div id="score-detail" style="text-align: center; font-size: 18px; margin-bottom: 30px; color: #475569;"></div>
+        <h1 style="text-align: center; color: var(--pro-blue); margin-top: 0;">KẾT QUẢ BÀI THI</h1>
+        <div id="score-percent" style="text-align: center; font-size: 72px; font-weight: bold; color: #ef4444;">0%</div>
+        <div id="score-detail" style="text-align: center; font-size: 20px; margin-bottom: 40px; color: #475569;"></div>
         
         <div id="wrong-area">
-            <h3 style="border-left: 4px solid #ef4444; padding-left: 10px;">Các câu cần lưu ý:</h3>
+            <h3 style="border-left: 6px solid #ef4444; padding-left: 15px; color: #1e293b;">Xem lại câu trả lời sai:</h3>
             <div id="wrong-questions"></div>
         </div>
 
-        <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
-            <button class="btn-pro" onclick="location.reload()">Thi đề mới</button>
+        <div style="margin-top: 40px; display: flex; gap: 15px; justify-content: center;">
+            <button class="btn-pro" onclick="location.reload()">Thi lại đề này</button>
             <button id="btn-redo-wrong" class="btn-pro" style="background: #059669; display: none;">Làm lại câu sai</button>
-            <button class="btn-pro" onclick="location.href='index.html'" style="background: #64748b;">Trang chủ</button>
+            <button class="btn-pro" onclick="location.href='index.html'" style="background: #64748b;">Về trang chủ</button>
         </div>
     </div>
 </div>
 
 <script src="questions.js"></script>
 <script src="questions2.js"></script>
+<script src="questions3.js"></script>
+<script src="questions4.js"></script>
+<script src="questions5.js"></script>
+<script src="questions6.js"></script>
+<script src="questions7.js"></script>
+<script src="questions8.js"></script>
+
 <script>
     const params = new URLSearchParams(location.search);
-    const setId = params.get('set') || '1';
-    let originalQuestions = window.QUESTION_SETS[setId] || [];
-    let currentQuestions = [...originalQuestions]; 
+    const setId = params.get('set');
     
+    let currentQuestions = [];
     let currentIdx = 0;
-    let answers = new Array(currentQuestions.length).fill(null);
-    let flags = new Array(currentQuestions.length).fill(false);
+    let answers = [];
+    let flags = [];
     let timer;
     let timeLeft = 3600; // 60 phút
 
-    // --- XỬ LÝ FURIGANA (Giữ nguyên yêu cầu của bạn) ---
-    function convertFurigana(text) {
-        if (!text) return text;
-        return text.replace(/([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g, 
-            (m, kanji, kana) => `<ruby class="ruby-text">${kanji}<rt>${kana}</rt></ruby>`);
+    // 1. Logic tải dữ liệu chuyên sâu cho lý thuyết (Bộ 1-8)
+    function loadTheoryData() {
+        const qSets = window.QUESTION_SETS || {};
+        
+        if (setId === 'randomExam') {
+            // Chỉ gom dữ liệu từ bộ lý thuyết 1 đến 8
+            const theorySets = ['1', '2', '3', '4', '5', '6', '7', '8'];
+            let allTheory = [];
+            
+            theorySets.forEach(id => {
+                if (qSets[id]) allTheory = allTheory.concat(qSets[id]);
+            });
+
+            if (allTheory.length === 0) return false;
+
+            // Trộn ngẫu nhiên và lấy 30 câu
+            currentQuestions = allTheory.sort(() => Math.random() - 0.5).slice(0, 30);
+        } else if (setId && qSets[setId]) {
+            currentQuestions = [...qSets[setId]];
+        }
+
+        return currentQuestions.length > 0;
     }
 
-    // --- TIMER ---
+    // 2. Chuyển đổi Furigana
+    function convertFurigana(text) {
+        if (!text) return "";
+        return text.replace(/([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g, 
+            (m, kanji, kana) => `<ruby>${kanji}<rt>${kana}</rt></ruby>`);
+    }
+
+    // 3. Render giao diện
+    function renderExam() {
+        const q = currentQuestions[currentIdx];
+        const grid = document.getElementById('q-grid');
+        const quiz = document.getElementById('pro-quiz');
+        
+        quiz.innerHTML = `
+            <div style="color: #64748b; margin-bottom: 15px; font-weight: bold; font-size: 14px;">QUESTION ${currentIdx + 1} OF ${currentQuestions.length}</div>
+            <h2 style="font-size: 24px; line-height: 1.6; color: #1e293b; margin-bottom: 30px;">${convertFurigana(q.q)}</h2>
+            
+            <div class="options-list">
+                ${q.options.map((opt, i) => `
+                    <div class="pro-opt ${answers[currentIdx] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
+                        <span style="width:24px; height:24px; border:2px solid #cbd5e1; border-radius:50%; margin-right:20px; display:flex; align-items:center; justify-content:center; background: white;">
+                            ${answers[currentIdx] === i ? '<div style="width:12px; height:12px; background:var(--pro-blue); border-radius:50%;"></div>' : ''}
+                        </span>
+                        <span>${convertFurigana(opt)}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        // Cập nhật lưới câu hỏi bên sidebar
+        grid.innerHTML = currentQuestions.map((_, i) => `
+            <div class="q-num ${currentIdx === i ? 'active' : ''} ${answers[i] !== null ? 'done' : ''} ${flags[i] ? 'flagged' : ''}" 
+                 onclick="goTo(${i})">${i + 1}</div>
+        `).join('');
+
+        document.getElementById('btn-prev').disabled = currentIdx === 0;
+        document.getElementById('btn-next').innerText = currentIdx === currentQuestions.length - 1 ? "Xem lại & Hoàn tất" : "Tiếp theo (Next)";
+    }
+
+    // 4. Điều hướng
+    window.selectOpt = (i) => { answers[currentIdx] = i; renderExam(); };
+    window.goTo = (i) => { currentIdx = i; renderExam(); };
+    
+    document.getElementById('btn-next').onclick = () => {
+        if (currentIdx < currentQuestions.length - 1) { 
+            currentIdx++; 
+            renderExam(); 
+        } else {
+            alert("Bạn đã ở câu hỏi cuối cùng. Hãy kiểm tra lại các câu đánh dấu 🚩 trước khi nộp bài.");
+        }
+    };
+    
+    document.getElementById('btn-prev').onclick = () => { 
+        if (currentIdx > 0) { currentIdx--; renderExam(); } 
+    };
+    
+    document.getElementById('btn-flag').onclick = () => { 
+        flags[currentIdx] = !flags[currentIdx]; 
+        renderExam(); 
+    };
+
+    // 5. Đồng hồ
     function startTimer() {
         timer = setInterval(() => {
             timeLeft--;
@@ -133,51 +247,15 @@
         }, 1000);
     }
 
-    function renderExam() {
-        const q = currentQuestions[currentIdx];
-        const grid = document.getElementById('q-grid');
-        const quiz = document.getElementById('pro-quiz');
-        
-        quiz.innerHTML = `
-            <div style="color: #64748b; margin-bottom: 10px; font-weight: bold;">Question ${currentIdx + 1} of ${currentQuestions.length}</div>
-            <h2 style="font-size: 22px; line-height: 1.5; color: #1e293b;">${convertFurigana(q.q)}</h2>
-            ${q.img ? `<img src="${q.img}" style="max-width:100%; max-height: 300px; margin: 20px 0; border: 1px solid #cbd5e1; border-radius: 8px;">` : ''}
-            <div class="options-list">
-                ${q.options.map((opt, i) => `
-                    <div class="pro-opt ${answers[currentIdx] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
-                        <span style="width: 20px; height: 20px; border: 2px solid #2563eb; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center;">
-                            ${answers[currentIdx] === i ? '<div style="width:10px; height:10px; background:#2563eb; border-radius:50%;"></div>' : ''}
-                        </span>
-                        ${convertFurigana(opt)}
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        grid.innerHTML = currentQuestions.map((_, i) => `
-            <div class="q-num ${currentIdx === i ? 'active' : ''} ${answers[i] !== null ? 'done' : ''} ${flags[i] ? 'flagged' : ''}" 
-                 onclick="goTo(${i})">${i + 1}</div>
-        `).join('');
-
-        document.getElementById('btn-prev').disabled = currentIdx === 0;
-        document.getElementById('btn-next').innerText = currentIdx === currentQuestions.length - 1 ? "Review (Xem lại)" : "Tiếp theo (Next)";
-    }
-
-    window.selectOpt = (i) => { answers[currentIdx] = i; renderExam(); };
-    window.goTo = (i) => { currentIdx = i; renderExam(); };
-    
-    document.getElementById('btn-next').onclick = () => {
-        if (currentIdx < currentQuestions.length - 1) { currentIdx++; renderExam(); }
-        else { alert("Bạn đã đến cuối đề thi. Hãy kiểm tra lại các câu 🚩 trước khi nộp."); }
-    };
-    document.getElementById('btn-prev').onclick = () => { if (currentIdx > 0) { currentIdx--; renderExam(); } };
-    document.getElementById('btn-flag').onclick = () => { flags[currentIdx] = !flags[currentIdx]; renderExam(); };
-
-    // --- KẾT THÚC & TÍNH ĐIỂM ---
+    // 6. Nộp bài và Kết quả
     window.submitExam = () => {
-        if (!confirm("Bạn có chắc chắn muốn nộp bài?")) return;
-        clearInterval(timer);
+        const confirmMsg = answers.includes(null) 
+            ? "Bạn vẫn còn câu chưa làm. Bạn có chắc muốn nộp bài không?" 
+            : "Bạn muốn kết thúc bài thi và xem kết quả?";
         
+        if (!confirm(confirmMsg)) return;
+        
+        clearInterval(timer);
         let correctCount = 0;
         let wrongs = [];
 
@@ -185,7 +263,7 @@
             if (answers[i] === q.answer) {
                 correctCount++;
             } else {
-                wrongs.push({ ...q, userChoice: answers[i] });
+                wrongs.push({ ...q, userChoice: answers[i], originalIdx: i });
             }
         });
 
@@ -198,135 +276,49 @@
         wrongs.forEach((q) => {
             htmlWrong += `
                 <div class="wrong-item">
-                    <p style="font-weight: bold; font-size: 16px;">${convertFurigana(q.q)}</p>
-                    <p style="color: #ef4444;">❌ Bạn chọn: ${q.userChoice !== null ? convertFurigana(q.options[q.userChoice]) : "Bỏ trống"}</p>
-                    <p style="color: #059669; font-weight: bold;">✅ Đáp án đúng: ${convertFurigana(q.options[q.answer])}</p>
-                    ${q.explain ? `<div style="background: #f8fafc; padding: 10px; border-radius: 4px; font-size: 14px; margin-top: 5px;">📘 <b>Giải thích:</b> ${convertFurigana(q.explain)}</div>` : ""}
+                    <p style="font-weight: bold; color: #1e293b;">[Câu ${q.originalIdx + 1}] ${convertFurigana(q.q)}</p>
+                    <p style="color: #ef4444; margin: 5px 0;">❌ Bạn chọn: ${q.userChoice !== null ? convertFurigana(q.options[q.userChoice]) : "<i style='color:#94a3b8'>Bỏ trống</i>"}</p>
+                    <p style="color: #059669; font-weight: bold; margin: 5px 0;">✅ Đáp án đúng: ${convertFurigana(q.options[q.answer])}</p>
+                    ${q.explain ? `<div style="background:#f1f5f9; padding:12px; margin-top:10px; font-size:14px; border-radius:6px; border-left: 4px solid #334155;">📘 <b>Giải thích:</b> ${convertFurigana(q.explain)}</div>` : ""}
                 </div>
             `;
         });
-
-        document.getElementById('wrong-questions').innerHTML = htmlWrong || "<p style='text-align:center; color:#059669;'>Tuyệt vời! Bạn không sai câu nào.</p>";
+        document.getElementById('wrong-questions').innerHTML = htmlWrong || "<p style='text-align:center; color:#059669; padding: 20px;'>Tuyệt vời! Bạn không sai câu nào.</p>";
 
         if (wrongs.length > 0) {
             const btnRedo = document.getElementById('btn-redo-wrong');
             btnRedo.style.display = "inline-block";
             btnRedo.onclick = () => {
-                currentQuestions = [...wrongs];
-                currentIdx = 0;
-                answers = new Array(currentQuestions.length).fill(null);
-                flags = new Array(currentQuestions.length).fill(false);
+                currentQuestions = wrongs.map(w => { 
+                    const clean = {...w}; 
+                    delete clean.userChoice; 
+                    delete clean.originalIdx; 
+                    return clean; 
+                });
+                initExam();
                 document.getElementById('result-screen').style.display = "none";
-                timeLeft = 1800; // Tặng thêm 30p để làm lại câu sai
+                timeLeft = 1800; // Reset 30p để làm lại câu sai
                 startTimer();
-                renderExam();
             };
         }
     };
 
-    // Khởi tạo
-    startTimer();
-    renderExam();
+    function initExam() {
+        currentIdx = 0;
+        answers = new Array(currentQuestions.length).fill(null);
+        flags = new Array(currentQuestions.length).fill(false);
+        renderExam();
+    }
+
+    // Chạy lệnh khởi tạo
+    window.onload = () => {
+        if (loadTheoryData()) {
+            startTimer();
+            initExam();
+        } else {
+            document.body.innerHTML = `<div style="padding:50px; text-align:center;"><h2>Lỗi: Không tìm thấy dữ liệu câu hỏi!</h2><p>Hãy đảm bảo bạn đã load các file questions.js trong code.</p><button onclick="location.href='index.html'">Quay lại</button></div>`;
+        }
+    };
 </script>
-  <style>
-    :root {
-        --pro-blue: #1e40af;
-        --pro-dark: #334155;
-        --pro-bg: #e2e8f0;
-        --pro-border: #cbd5e1;
-        --pro-flag: #facc15;
-    }
-
-    body { 
-        background-color: var(--pro-bg); 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        margin: 0; padding: 0; overflow: hidden; 
-        user-select: none; /* Ngăn học viên copy câu hỏi */
-    }
-
-    /* Container chính */
-    .prometric-container { display: flex; flex-direction: column; height: 100vh; }
-    
-    /* Header - Thanh thông tin phía trên */
-    .pro-header { 
-        background: var(--pro-dark); 
-        color: white; padding: 12px 25px; 
-        display: flex; justify-content: space-between; align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    /* Bố cục chia đôi: Sidebar trái và Nội dung phải */
-    .pro-main { display: flex; flex: 1; overflow: hidden; }
-    
-    /* Sidebar: Danh sách số câu hỏi */
-    .pro-sidebar { 
-        width: 240px; background: #f1f5f9; 
-        border-right: 2px solid var(--pro-border); 
-        padding: 20px; overflow-y: auto; 
-    }
-    .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .q-num { 
-        width: 42px; height: 42px; border: 1px solid #94a3b8; background: white; 
-        display: flex; align-items: center; justify-content: center; 
-        cursor: pointer; font-size: 14px; border-radius: 4px; transition: 0.2s;
-    }
-    .q-num:hover { border-color: var(--pro-blue); background: #f8fafc; }
-    .q-num.active { border: 3px solid var(--pro-blue); font-weight: bold; color: var(--pro-blue); }
-    .q-num.done { background: #64748b; color: white; border-color: #64748b; }
-    .q-num.flagged { background: var(--pro-flag); color: black; border-color: #eab308; font-weight: bold; }
-
-    /* Nội dung câu hỏi */
-    .pro-content { 
-        flex: 1; padding: 50px; overflow-y: auto; 
-        background: white; display: flex; justify-content: center; 
-    }
-    .question-box { width: 100%; max-width: 850px; animation: fadeIn 0.3s ease; }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Tùy chọn đáp án */
-    .pro-opt { 
-        border: 2px solid #e2e8f0; padding: 18px; margin: 12px 0; 
-        cursor: pointer; border-radius: 8px; display: flex; 
-        align-items: center; transition: all 0.2s; font-size: 17px;
-    }
-    .pro-opt:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .pro-opt.selected { 
-        background: #eff6ff; border-color: var(--pro-blue); 
-        color: var(--pro-blue); font-weight: 500; 
-    }
-
-    /* Footer - Các nút điều hướng */
-    .pro-footer { 
-        background: #f8fafc; padding: 15px 50px; 
-        border-top: 2px solid var(--pro-border); 
-        display: flex; justify-content: space-between; align-items: center;
-    }
-    .btn-pro { 
-        background: var(--pro-dark); color: white; border: none; 
-        padding: 12px 30px; cursor: pointer; border-radius: 5px; 
-        font-weight: bold; font-size: 15px; transition: opacity 0.2s;
-    }
-    .btn-pro:active { opacity: 0.8; }
-    .btn-pro:disabled { background: #cbd5e1; cursor: not-allowed; color: #94a3b8; }
-    .btn-flag { background: var(--pro-flag); color: #000; display: flex; align-items: center; gap: 8px; }
-
-    /* Màn hình kết quả Premium */
-    #result-screen {
-        display: none; position: fixed; inset: 0; background: #f8fafc; 
-        z-index: 9999; overflow-y: auto; padding: 40px 20px;
-    }
-    .result-card { 
-        max-width: 900px; margin: 0 auto; background: white;
-        border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-        padding: 40px;
-    }
-    
-    /* Furigana hỗ trợ đọc */
-    ruby rt { font-size: 11px; color: #64748b; font-weight: normal; }
-</style>
 </body>
 </html>
