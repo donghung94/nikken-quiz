@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Prometric Mobile Pro</title>
+    <title>Prometric Adaptive Test</title>
     <style>
         :root {
             --pro-green: #7fb069;
@@ -19,31 +19,51 @@
         }
 
         /* Header & Status */
-        .pro-header { background: var(--pro-dark); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .pro-header { background: var(--pro-dark); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
         .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; }
 
-        .pro-main { display: flex; flex: 1; overflow: hidden; margin-bottom: 70px; /* Trừa chỗ cho footer cố định */ }
+        .pro-main { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        /* Sidebar trái nút nhỏ */
+        /* --- SIDEBAR: TỰ ĐỘNG THAY ĐỔI THEO THIẾT BỊ --- */
         .pro-sidebar { 
-            width: 45px; background: #f0f0f0; border-right: 1px solid var(--pro-border); 
-            overflow-y: auto; padding: 5px 2px; display: flex; flex-direction: column; gap: 6px;
+            background: #f8f8f8; border-right: 1px solid var(--pro-border); 
+            overflow-y: auto; padding: 10px 5px; display: flex; flex-wrap: wrap; gap: 5px;
+        }
+
+        /* Giao diện PC (Mặc định màn hình lớn) */
+        @media (min-width: 769px) {
+            .pro-sidebar { width: 220px; align-content: flex-start; }
+            .q-num { width: 45px; height: 45px; font-size: 14px; }
+            .pro-footer { position: relative; } /* PC không cần footer bay */
+        }
+
+        /* Giao diện Mobile (Màn hình dưới 768px) */
+        @media (max-width: 768px) {
+            .pro-sidebar { width: 45px; flex-direction: column; flex-wrap: nowrap; padding: 5px 2px; }
+            .q-num { width: 35px; height: 35px; font-size: 11px; flex-shrink: 0; }
+            .pro-main { margin-bottom: 75px; } /* Trừa chỗ cho footer cố định */
         }
 
         .q-num { 
-            width: 35px; height: 35px; border: 1px solid #999; background: #fff; 
+            border: 1px solid #999; background: #fff; 
             display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; font-size: 12px; border-radius: 4px; flex-shrink: 0;
+            cursor: pointer; border-radius: 4px;
         }
         .q-num.active { border: 2px solid var(--pro-green); background: #ffffd0; font-weight: bold; }
         .q-num.done { background: var(--pro-green); color: white; border-color: var(--pro-green); }
         .q-num.flagged { background: #facc15 !important; border-color: #eab308 !important; color: black; }
 
-        /* Nội dung câu hỏi */
-        .pro-content { flex: 1; padding: 15px; overflow-y: auto; }
+        /* --- NỘI DUNG CÂU HỎI --- */
+        .pro-content { 
+            flex: 1; padding: 15px; overflow-y: auto; 
+            /* GIẢI QUYẾT LỖI CHE ĐÁP ÁN: Tạo khoảng trống cực đại ở cuối */
+            padding-bottom: 150px !important; 
+        }
+        
+        .question-box { max-width: 800px; margin: 0 auto; }
         .q-text { 
             background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 5px solid var(--pro-green);
-            font-size: 17px; line-height: 1.6; margin-bottom: 20px;
+            font-size: 18px; line-height: 1.6; margin-bottom: 20px;
         }
 
         .pro-opt { 
@@ -52,22 +72,20 @@
         }
         .pro-opt.selected { background: #e9f5e6; border-color: var(--pro-green); font-weight: bold; }
 
-        /* FOOTER CỐ ĐỊNH THEO Ý BẠN */
+        /* --- FOOTER DI ĐỘNG --- */
         .pro-footer { 
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #444; color: white;
             padding: 10px 15px;
             padding-bottom: calc(10px + env(safe-area-inset-bottom));
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000; box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
         }
         
-        .footer-left { display: flex; gap: 15px; align-items: center; }
-        .footer-right { display: flex; align-items: center; }
-
-        .btn-icon { background: none; border: 1px solid #777; color: white; font-size: 18px; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; }
-        .btn-jp { background: var(--pro-green); color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; font-size: 14px; margin-left: 10px; }
-        .btn-jp:disabled { background: #666; }
+        .footer-left { display: flex; gap: 12px; align-items: center; }
+        .btn-icon { background: none; border: 1px solid #777; color: white; font-size: 18px; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; }
+        .btn-jp { background: var(--pro-green); color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 14px; }
+        .btn-jp:disabled { background: #666; opacity: 0.5; }
 
         ruby rt { font-size: 10px; color: #555; }
         #result-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 2000; padding: 20px; overflow-y: auto; }
@@ -77,25 +95,26 @@
 
 <header class="pro-header">
     <a href="index.html" style="text-decoration:none; color:white; background:#555; padding:5px 10px; border-radius:4px; font-size:12px;">🏠 Home</a>
-    <div id="pro-timer" style="font-size:20px; font-weight:bold;">60:00</div>
-    <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold;">終了</button>
+    <div id="pro-timer" style="font-size:22px; font-weight:bold; color:#ffdd00;">60:00</div>
+    <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">終了 (Nộp bài)</button>
 </header>
 
 <div class="status-bar">
     <div id="q-title">質問: 1 / 40</div>
-    <div>受験者名: Candidate</div>
+    <div>Candidate: User</div>
 </div>
 
 <div class="pro-main">
     <aside class="pro-sidebar" id="q-grid"></aside>
+
     <main class="pro-content" id="scroll-area">
-        <div id="pro-quiz"></div>
+        <div class="question-box" id="pro-quiz"></div>
     </main>
 </div>
 
 <footer class="pro-footer">
     <div class="footer-left">
-        <button class="btn-icon" onclick="alert('Hướng dẫn:\n- Nhấn số bên trái để nhảy câu.\n- 🚩: Đánh dấu câu khó.\n- 戻る/次へ: Chuyển câu.')">?</button>
+        <button class="btn-icon" onclick="alert('HD: ? (Hướng dẫn), 🚩 (Đánh dấu), 戻る (Quay lại), 次へ (Tiếp theo)')">?</button>
         <button class="btn-icon" onclick="toggleFlag()">🚩</button>
         <button class="btn-jp" id="btn-prev" onclick="prevQ()">戻る</button>
     </div>
@@ -105,11 +124,11 @@
 </footer>
 
 <div id="result-screen">
-    <h2 style="text-align:center; color:var(--pro-green)">KẾT QUẢ</h2>
-    <div id="score-percent" style="text-align:center; font-size:48px; color:red; font-weight:bold; margin:20px 0;">0%</div>
+    <h2 style="text-align:center; color:var(--pro-green)">KẾT QUẢ BÀI THI</h2>
+    <div id="score-percent" style="text-align:center; font-size:50px; color:red; font-weight:bold;">0%</div>
     <div id="score-detail" style="text-align:center; margin-bottom:20px;"></div>
     <div id="wrong-questions"></div>
-    <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--pro-green); color:white; border:none; border-radius:8px; font-weight:bold;">LÀM LẠI</button>
+    <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--pro-green); color:white; border:none; border-radius:8px; font-weight:bold;">RETRY</button>
 </div>
 
 <script src="questions.js"></script>
@@ -148,7 +167,7 @@
         
         document.getElementById('pro-quiz').innerHTML = `
             <div class="q-text"><b>問題 ${currentIdx + 1}:</b><br>${convertFurigana(q.q)}</div>
-            ${q.img ? `<img src="${q.img}" style="width:100%; border-radius:5px; margin-bottom:15px; max-height:200px; object-fit:contain;">` : ''}
+            ${q.img ? `<img src="${q.img}" style="width:100%; border-radius:5px; margin-bottom:15px; max-height:250px; object-fit:contain;">` : ''}
             <div>
                 ${q.options.map((opt, i) => `
                     <div class="pro-opt ${answers[currentIdx] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
@@ -165,6 +184,8 @@
 
         document.getElementById('btn-prev').disabled = currentIdx === 0;
         document.getElementById('btn-next').innerText = currentIdx === currentQuestions.length - 1 ? "終了" : "次へ";
+        
+        // Tự động cuộn lên đầu khi sang câu mới
         document.getElementById('scroll-area').scrollTop = 0;
     }
 
@@ -196,8 +217,8 @@
             else {
                 html += `<div style="padding:15px 0; border-bottom:1px solid #eee;">
                     <p><b>Câu ${i+1}:</b> ${convertFurigana(q.q)}</p>
-                    <p style="color:red">Sai: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bỏ'}</p>
-                    <p style="color:green">Đúng: ${convertFurigana(q.options[q.answer])}</p>
+                    <p style="color:red">Bạn chọn: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Chưa chọn'}</p>
+                    <p style="color:green">Đáp án đúng: ${convertFurigana(q.options[q.answer])}</p>
                 </div>`;
             }
         });
