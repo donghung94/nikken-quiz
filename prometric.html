@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Prometric Adaptive Test</title>
+    <title>Prometric Mock Exam Pro</title>
     <style>
         :root {
             --pro-green: #7fb069;
@@ -18,30 +18,32 @@
             overflow: hidden; background: #fff;
         }
 
-        /* Header & Status */
-        .pro-header { background: var(--pro-dark); color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
+        /* Header cố định */
+        .pro-header { 
+            background: var(--pro-dark); color: white; padding: 10px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1001; position: sticky; top: 0;
+        }
         .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; }
 
         .pro-main { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        /* --- SIDEBAR: TỰ ĐỘNG THAY ĐỔI THEO THIẾT BỊ --- */
+        /* SIDEBAR: Đã thêm padding-bottom để không bị che câu 40 */
         .pro-sidebar { 
             background: #f8f8f8; border-right: 1px solid var(--pro-border); 
-            overflow-y: auto; padding: 10px 5px; display: flex; flex-wrap: wrap; gap: 5px;
+            overflow-y: auto; padding: 10px 5px; display: flex; 
+            padding-bottom: 100px !important; /* Khoảng trống để cuộn qua câu 40 */
         }
 
-        /* Giao diện PC (Mặc định màn hình lớn) */
         @media (min-width: 769px) {
-            .pro-sidebar { width: 220px; align-content: flex-start; }
+            .pro-sidebar { width: 220px; flex-wrap: wrap; gap: 5px; align-content: flex-start; }
             .q-num { width: 45px; height: 45px; font-size: 14px; }
-            .pro-footer { position: relative; } /* PC không cần footer bay */
         }
 
-        /* Giao diện Mobile (Màn hình dưới 768px) */
         @media (max-width: 768px) {
-            .pro-sidebar { width: 45px; flex-direction: column; flex-wrap: nowrap; padding: 5px 2px; }
-            .q-num { width: 35px; height: 35px; font-size: 11px; flex-shrink: 0; }
-            .pro-main { margin-bottom: 75px; } /* Trừa chỗ cho footer cố định */
+            .pro-sidebar { width: 48px; flex-direction: column; flex-wrap: nowrap; gap: 8px; }
+            .q-num { width: 38px; height: 38px; font-size: 12px; flex-shrink: 0; }
+            .pro-main { margin-bottom: 75px; } 
         }
 
         .q-num { 
@@ -53,82 +55,83 @@
         .q-num.done { background: var(--pro-green); color: white; border-color: var(--pro-green); }
         .q-num.flagged { background: #facc15 !important; border-color: #eab308 !important; color: black; }
 
-        /* --- NỘI DUNG CÂU HỎI --- */
-        .pro-content { 
-            flex: 1; padding: 15px; overflow-y: auto; 
-            /* GIẢI QUYẾT LỖI CHE ĐÁP ÁN: Tạo khoảng trống cực đại ở cuối */
-            padding-bottom: 150px !important; 
-        }
-        
-        .question-box { max-width: 800px; margin: 0 auto; }
+        /* NỘI DUNG CÂU HỎI */
+        .pro-content { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 150px !important; }
         .q-text { 
             background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 5px solid var(--pro-green);
             font-size: 18px; line-height: 1.6; margin-bottom: 20px;
         }
-
-        .pro-opt { 
-            border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; 
-            cursor: pointer; border-radius: 8px; font-size: 16px; background: #fff;
-        }
+        .pro-opt { border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; cursor: pointer; border-radius: 8px; background: #fff; }
         .pro-opt.selected { background: #e9f5e6; border-color: var(--pro-green); font-weight: bold; }
 
-        /* --- FOOTER DI ĐỘNG --- */
+        /* FOOTER: Nút quay lại và tiếp theo về bên phải */
         .pro-footer { 
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: #444; color: white;
-            padding: 10px 15px;
+            background: #444; color: white; padding: 10px 15px;
             padding-bottom: calc(10px + env(safe-area-inset-bottom));
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
         }
-        
-        .footer-left { display: flex; gap: 12px; align-items: center; }
-        .btn-icon { background: none; border: 1px solid #777; color: white; font-size: 18px; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; }
-        .btn-jp { background: var(--pro-green); color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 14px; }
-        .btn-jp:disabled { background: #666; opacity: 0.5; }
+        .footer-left { display: flex; gap: 10px; }
+        .footer-right { display: flex; gap: 8px; }
+
+        .btn-icon { background: none; border: 1px solid #777; color: white; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; }
+        .btn-jp { background: var(--pro-green); color: white; border: none; padding: 10px 18px; border-radius: 4px; font-weight: bold; font-size: 14px; min-width: 80px; }
+
+        /* MÀN HÌNH KẾT QUẢ */
+        #result-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 2000; overflow-y: auto; }
+        .result-header { 
+            position: sticky; top: 0; background: var(--pro-dark); padding: 10px; 
+            display: flex; justify-content: space-between; z-index: 2001; 
+        }
 
         ruby rt { font-size: 10px; color: #555; }
-        #result-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 2000; padding: 20px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<header class="pro-header">
-    <a href="index.html" style="text-decoration:none; color:white; background:#555; padding:5px 10px; border-radius:4px; font-size:12px;">🏠 Home</a>
-    <div id="pro-timer" style="font-size:22px; font-weight:bold; color:#ffdd00;">60:00</div>
-    <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">終了 (Nộp bài)</button>
-</header>
+<div id="exam-ui">
+    <header class="pro-header">
+        <div style="font-size:12px;">特定技能試験</div>
+        <div id="pro-timer" style="font-size:22px; font-weight:bold; color:#ffdd00;">60:00</div>
+        <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">終了</button>
+    </header>
 
-<div class="status-bar">
-    <div id="q-title">質問: 1 / 40</div>
-    <div>Candidate: User</div>
-</div>
-
-<div class="pro-main">
-    <aside class="pro-sidebar" id="q-grid"></aside>
-
-    <main class="pro-content" id="scroll-area">
-        <div class="question-box" id="pro-quiz"></div>
-    </main>
-</div>
-
-<footer class="pro-footer">
-    <div class="footer-left">
-        <button class="btn-icon" onclick="alert('HD: ? (Hướng dẫn), 🚩 (Đánh dấu), 戻る (Quay lại), 次へ (Tiếp theo)')">?</button>
-        <button class="btn-icon" onclick="toggleFlag()">🚩</button>
-        <button class="btn-jp" id="btn-prev" onclick="prevQ()">戻る</button>
+    <div class="status-bar">
+        <div id="q-title">質問: 1 / 40</div>
+        <div id="user-name">受験者名: Thi thử</div>
     </div>
-    <div class="footer-right">
-        <button class="btn-jp" id="btn-next" onclick="nextQ()">次へ</button>
+
+    <div class="pro-main">
+        <aside class="pro-sidebar" id="q-grid"></aside>
+        <main class="pro-content" id="scroll-area">
+            <div id="pro-quiz" style="max-width:800px; margin:0 auto;"></div>
+        </main>
     </div>
-</footer>
+
+    <footer class="pro-footer">
+        <div class="footer-left">
+            <button class="btn-icon" onclick="alert('HD: 🚩 Đánh dấu, 戻る Quay lại, 次へ Tiếp theo')">?</button>
+            <button class="btn-icon" onclick="toggleFlag()">🚩</button>
+        </div>
+        <div class="footer-right">
+            <button class="btn-jp" style="background:#666" id="btn-prev" onclick="prevQ()">戻る</button>
+            <button class="btn-jp" id="btn-next" onclick="nextQ()">次へ</button>
+        </div>
+    </footer>
+</div>
 
 <div id="result-screen">
-    <h2 style="text-align:center; color:var(--pro-green)">KẾT QUẢ BÀI THI</h2>
-    <div id="score-percent" style="text-align:center; font-size:50px; color:red; font-weight:bold;">0%</div>
-    <div id="score-detail" style="text-align:center; margin-bottom:20px;"></div>
-    <div id="wrong-questions"></div>
-    <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--pro-green); color:white; border:none; border-radius:8px; font-weight:bold;">RETRY</button>
+    <div class="result-header">
+        <button onclick="location.href='index.html'" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:4px;">🏠 Trang chủ</button>
+        <div style="color:white; font-weight:bold; padding-top:8px;">KẾT QUẢ</div>
+        <button onclick="location.reload()" style="background:var(--pro-green); color:white; border:none; padding:8px 15px; border-radius:4px;">🔄 Làm lại</button>
+    </div>
+    <div style="padding: 20px;">
+        <div id="score-percent" style="text-align:center; font-size:50px; color:red; font-weight:bold; margin:20px 0;">0%</div>
+        <div id="score-detail" style="text-align:center; font-size:18px; margin-bottom:30px;"></div>
+        <div id="wrong-questions"></div>
+    </div>
 </div>
 
 <script src="questions.js"></script>
@@ -184,8 +187,6 @@
 
         document.getElementById('btn-prev').disabled = currentIdx === 0;
         document.getElementById('btn-next').innerText = currentIdx === currentQuestions.length - 1 ? "終了" : "次へ";
-        
-        // Tự động cuộn lên đầu khi sang câu mới
         document.getElementById('scroll-area').scrollTop = 0;
     }
 
@@ -199,17 +200,20 @@
     window.toggleFlag = () => { flags[currentIdx] = !flags[currentIdx]; renderExam(); };
 
     function startTimer() {
-        setInterval(() => {
+        const timer = setInterval(() => {
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('pro-timer').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            if(timeLeft <= 0) submitExam();
+            if(timeLeft <= 0) { clearInterval(timer); submitExam(); }
         }, 1000);
     }
 
     window.submitExam = () => {
-        if(!confirm("終了しますか？")) return;
+        if(!confirm("終了しますか？ (Bạn có muốn nộp bài?)")) return;
+        document.getElementById('exam-ui').style.display = "none";
+        document.getElementById('result-screen').style.display = "block";
+        
         let correct = 0;
         let html = "";
         currentQuestions.forEach((q, i) => {
@@ -218,14 +222,14 @@
                 html += `<div style="padding:15px 0; border-bottom:1px solid #eee;">
                     <p><b>Câu ${i+1}:</b> ${convertFurigana(q.q)}</p>
                     <p style="color:red">Bạn chọn: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Chưa chọn'}</p>
-                    <p style="color:green">Đáp án đúng: ${convertFurigana(q.options[q.answer])}</p>
+                    <p style="color:green">Đáp án: ${convertFurigana(q.options[q.answer])}</p>
                 </div>`;
             }
         });
-        document.getElementById('result-screen').style.display = "block";
         document.getElementById('score-percent').innerText = Math.round(correct/currentQuestions.length*100) + "%";
-        document.getElementById('score-detail').innerText = `Đúng ${correct} / ${currentQuestions.length}`;
+        document.getElementById('score-detail').innerText = `正解: ${correct} / ${currentQuestions.length}`;
         document.getElementById('wrong-questions').innerHTML = html;
+        window.scrollTo(0,0);
     };
 
     if (loadData()) {
