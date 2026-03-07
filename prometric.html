@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Prometric Mock Exam Fixed</title>
+    <title>Prometric Mock Exam Pro</title>
     <style>
         :root {
             --pro-green: #7fb069;
@@ -11,84 +11,115 @@
             --pro-border: #ccc;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        html, body { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            overflow: hidden; font-family: sans-serif; background: #fff;
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; padding: 0; font-family: sans-serif; 
+            display: flex; flex-direction: column; height: 100vh; 
+            overflow: hidden; background: #fff;
         }
 
-        /* Container chính */
-        .app-container {
-            display: flex; flex-direction: column; height: 100vh;
-        }
-
+        /* Header cố định */
         .pro-header { 
             background: var(--pro-dark); color: white; padding: 10px; 
-            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1001; position: sticky; top: 0;
         }
-        .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; flex-shrink: 0; }
+        .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; }
 
-        /* Vùng làm bài chính */
         .pro-main { 
-            flex: 1; display: flex; overflow: hidden; position: relative;
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+            position: relative; 
         }
 
-        /* SIDEBAR: SỬA LỖI CUỘN TẠI ĐÂY */
-        .pro-sidebar { 
-            width: 55px; background: #f4f4f4; border-right: 1px solid var(--pro-border);
-            overflow-y: scroll !important; /* Luôn hiện thanh cuộn */
-            -webkit-overflow-scrolling: touch;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 10px 0; gap: 8px;
-        }
-        /* Tạo khoảng trống giả dưới cùng Sidebar để cuộn qua câu 40 */
-        .pro-sidebar::after { content: ""; display: block; min-height: 150px; width: 100%; flex-shrink: 0; }
+       /* SIDEBAR: Chỉ thêm các dòng ép cuộn */
+.pro-sidebar { 
+    width: 48px; 
+    background: #f8f8f8; 
+    border-right: 1px solid var(--pro-border); 
+    
+    /* FIX LỖI TẠI ĐÂY */
+    display: block !important; /* Đổi từ flex sang block để thanh cuộn hoạt động */
+    overflow-y: auto !important; /* Hiện thanh cuộn khi quá 40 câu */
+    -webkit-overflow-scrolling: touch; /* Lướt mượt trên iPhone */
+    
+    padding: 10px 4px;
+    padding-bottom: 120px !important; /* Tạo khoảng trống để không bị Footer che câu 40 */
+}
 
-        /* NỘI DUNG CÂU HỎI */
-        .pro-content { 
-            flex: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch;
-            padding: 15px; padding-bottom: 200px !important;
-        }
-
-        /* PC Mode */
+        /* CSS cho PC */
         @media (min-width: 769px) {
-            .pro-sidebar { width: 220px; flex-direction: row; flex-wrap: wrap; align-content: flex-start; padding: 10px; gap: 5px; }
-            .q-num { width: 45px; height: 45px; }
-            .pro-sidebar::after { display: none; }
+            .pro-sidebar { width: 220px; padding-bottom: 20px !important; }
+            #q-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+            .q-num { width: 45px; height: 45px; font-size: 14px; margin-bottom: 0; }
         }
 
+      /* CSS cho Điện thoại */
+@media (max-width: 768px) {
+    .pro-sidebar { 
+        width: 50px; 
+        /* Xóa flex-direction và flex-wrap ở đây để display: block bên trên có tác dụng */
+    }
+    .pro-main { margin-bottom: 75px; } 
+    .q-num { 
+        margin: 0 auto 10px auto; /* Giữ các nút số nằm giữa và cách nhau */
+        display: flex; /* Đảm bảo con số vẫn nằm giữa nút */
+    } 
+}
         .q-num { 
-            width: 40px; height: 40px; border: 1px solid #999; background: #fff; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; border-radius: 4px; font-size: 13px; flex-shrink: 0;
+            width: 38px; 
+            height: 38px; 
+            border: 1px solid #999; 
+            background: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            border-radius: 4px;
+            font-size: 12px;
+            flex-shrink: 0;
         }
         .q-num.active { border: 2px solid var(--pro-green); background: #ffffd0; font-weight: bold; }
         .q-num.done { background: var(--pro-green); color: white; border-color: var(--pro-green); }
         .q-num.flagged { background: #facc15 !important; border-color: #eab308 !important; color: black; }
 
-        .q-text { background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 5px solid var(--pro-green); font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
-        .pro-opt { border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; cursor: pointer; border-radius: 8px; background: #fff; font-size: 16px; }
+        /* NỘI DUNG CÂU HỎI */
+        .pro-content { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 180px !important; }
+        .q-text { 
+            background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 5px solid var(--pro-green);
+            font-size: 18px; line-height: 1.6; margin-bottom: 20px;
+        }
+        .pro-opt { border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; cursor: pointer; border-radius: 8px; background: #fff; }
         .pro-opt.selected { background: #e9f5e6; border-color: var(--pro-green); font-weight: bold; }
 
-        /* FOOTER CỐ ĐỊNH */
+        /* FOOTER */
         .pro-footer { 
-            height: 70px; background: #444; color: white; padding: 0 15px;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #444; color: white; padding: 10px 15px;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
             display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0; z-index: 100;
+            z-index: 1000;
         }
-        .footer-left, .footer-right { display: flex; gap: 8px; align-items: center; }
+        .footer-left { display: flex; gap: 10px; }
+        .footer-right { display: flex; gap: 8px; }
+
         .btn-icon { background: none; border: 1px solid #777; color: white; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; }
         .btn-jp { background: var(--pro-green); color: white; border: none; padding: 10px 18px; border-radius: 4px; font-weight: bold; font-size: 14px; min-width: 80px; }
 
+        /* MÀN HÌNH KẾT QUẢ */
         #result-screen { display: none; position: fixed; inset: 0; background: #fff; z-index: 2000; overflow-y: auto; }
-        .result-header { position: sticky; top: 0; background: var(--pro-dark); padding: 10px; display: flex; justify-content: space-between; z-index: 2001; }
+        .result-header { 
+            position: sticky; top: 0; background: var(--pro-dark); padding: 10px; 
+            display: flex; justify-content: space-between; z-index: 2001; 
+        }
+
         ruby rt { font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
 
-<div class="app-container" id="exam-ui">
+<div id="exam-ui">
     <header class="pro-header">
         <div style="font-size:12px;">特定技能試験</div>
         <div id="pro-timer" style="font-size:22px; font-weight:bold; color:#ffdd00;">60:00</div>
@@ -122,6 +153,7 @@
 <div id="result-screen">
     <div class="result-header">
         <button onclick="location.href='index.html'" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:4px;">🏠 Trang chủ</button>
+        <div style="color:white; font-weight:bold; padding-top:8px;">KẾT QUẢ</div>
         <button onclick="location.reload()" style="background:var(--pro-green); color:white; border:none; padding:8px 15px; border-radius:4px;">🔄 Làm lại</button>
     </div>
     <div style="padding: 20px;">
@@ -152,7 +184,7 @@
         const ids = ['1','2','3','4','5','6','7','8'];
         ids.forEach(id => { if(qSets[id]) currentQuestions = currentQuestions.concat(qSets[id]); });
         currentQuestions = currentQuestions.sort(() => Math.random() - 0.5).slice(0, 40);
-        return currentQuestions.length > 4;
+        return currentQuestions.length > 0;
     }
 
     function convertFurigana(text) {
@@ -177,6 +209,7 @@
             </div>
         `;
 
+        // Render danh sách câu hỏi
         document.getElementById('q-grid').innerHTML = currentQuestions.map((_, i) => `
             <div class="q-num ${currentIdx === i ? 'active' : ''} ${answers[i] !== null ? 'done' : ''} ${flags[i] ? 'flagged' : ''}" 
                  onclick="goTo(${i})">${i + 1}</div>
@@ -210,6 +243,7 @@
         if(!confirm("終了しますか？")) return;
         document.getElementById('exam-ui').style.display = "none";
         document.getElementById('result-screen').style.display = "block";
+        
         let correct = 0;
         let html = "";
         currentQuestions.forEach((q, i) => {
@@ -217,8 +251,8 @@
             else {
                 html += `<div style="padding:15px 0; border-bottom:1px solid #eee;">
                     <p><b>Câu ${i+1}:</b> ${convertFurigana(q.q)}</p>
-                    <p style="color:red">Sai: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bỏ'}</p>
-                    <p style="color:green">Đúng: ${convertFurigana(q.options[q.answer])}</p>
+                    <p style="color:red">Bạn chọn: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Chưa chọn'}</p>
+                    <p style="color:green">Đáp án: ${convertFurigana(q.options[q.answer])}</p>
                 </div>`;
             }
         });
