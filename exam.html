@@ -200,27 +200,28 @@
 .btn-home { font-size: 13px !important; padding: 5px 10px !important; }
 #submitBtn { font-weight: bold; border-radius: 8px; }
     /* Header tổng chia thành cột dọc (2 hàng) */
+/* Header tổng bám sát 2 lề */
 .header {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 15px;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 10px 15px !important;
     background: #fff;
     border-bottom: 2px solid #7fb069;
-    gap: 12px; /* Khoảng cách giữa hàng trên và hàng dưới */
+    align-items: stretch !important; /* Quan trọng: Ép header rộng hết cỡ, không căn giữa con */
 }
 
-/* Hàng trên: Đẩy 2 đầu */
-.header-top {
-    display: flex;
-    justify-content: space-between; /* Đẩy Logo sang trái, Trang chủ sang phải */
-    align-items: center;
+/* Các hàng con bên trong */
+.header-top, .header-bottom {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important; /* Đẩy ra 2 đầu */
+    align-items: center !important;
+    width: 100% !important;
 }
 
-/* Hàng dưới: Đẩy 2 đầu */
-.header-bottom {
-    display: flex;
-    justify-content: space-between; /* Đẩy Đảo câu sang trái, Giờ/Nộp bài sang phải */
-    align-items: center;
+/* Reset lại margin để các phần tử bám sát lề */
+.brand, .btn-home, .shuffle-wrapper, .exam-status {
+    margin: 0 !important;
 }
 
 /* Các thành phần bổ trợ */
