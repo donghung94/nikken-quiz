@@ -26,57 +26,58 @@
         }
         .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; }
 
-       .pro-main { 
-    display: flex; 
-    flex: 1; 
-    overflow: hidden; /* Giữ nguyên dòng này */
-    position: relative; 
-}
+        .pro-main { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+            position: relative; 
+        }
 
-       /* Sidebar trái nút nhỏ */
-.pro-sidebar { 
-    width: 48px; 
-    background: #f8f8f8; 
-    border-right: 1px solid var(--pro-border); 
-    
-    /* QUAN TRỌNG: Thêm 3 dòng này để ép nó phải cuộn */
-    display: block !important; /* Đổi từ flex sang block */
-    overflow-y: scroll !important; /* Ép hiện thanh cuộn */
-    -webkit-overflow-scrolling: touch; /* Giúp lướt mượt trên iPhone */
-    
-    padding: 10px 4px;
-    padding-bottom: 120px !important; /* Khoảng trống để không bị Footer che câu 40 */
-}
+        /* SIDEBAR: Đã sửa lỗi không cuộn được trên điện thoại */
+        .pro-sidebar { 
+            width: 48px; 
+            background: #f8f8f8; 
+            border-right: 1px solid var(--pro-border); 
+            display: block !important; /* Ép kiểu block để cuộn */
+            overflow-y: auto !important; 
+            -webkit-overflow-scrolling: touch; 
+            padding: 10px 4px;
+            padding-bottom: 150px !important; /* Khoảng trống cực lớn cho câu 40 */
+        }
+
+        /* CSS cho PC */
         @media (min-width: 769px) {
-            .pro-sidebar { width: 220px; flex-wrap: wrap; gap: 5px; align-content: flex-start; }
-            .q-num { width: 45px; height: 45px; font-size: 14px; }
+            .pro-sidebar { width: 220px; padding-bottom: 20px !important; }
+            #q-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+            .q-num { width: 45px; height: 45px; font-size: 14px; margin-bottom: 0; }
         }
 
+        /* CSS cho Điện thoại */
         @media (max-width: 768px) {
-            .pro-sidebar { width: 48px; flex-direction: column; flex-wrap: nowrap; gap: 8px; }
-            .q-num { width: 38px; height: 38px; font-size: 12px; flex-shrink: 0; }
+            .pro-sidebar { width: 50px; }
             .pro-main { margin-bottom: 75px; } 
+            .q-num { margin: 0 auto 10px auto; } /* Căn giữa nút số */
         }
 
-       .q-num { 
-    width: 38px; 
-    height: 38px; 
-    margin-bottom: 8px; /* Tạo khoảng cách dọc giữa các nút */
-    border: 1px solid #999; 
-    background: #fff; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer; 
-    border-radius: 4px;
-    font-size: 12px;
-}
+        .q-num { 
+            width: 38px; 
+            height: 38px; 
+            border: 1px solid #999; 
+            background: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            border-radius: 4px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
         .q-num.active { border: 2px solid var(--pro-green); background: #ffffd0; font-weight: bold; }
         .q-num.done { background: var(--pro-green); color: white; border-color: var(--pro-green); }
         .q-num.flagged { background: #facc15 !important; border-color: #eab308 !important; color: black; }
 
         /* NỘI DUNG CÂU HỎI */
-        .pro-content { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 150px !important; }
+        .pro-content { flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 180px !important; }
         .q-text { 
             background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 5px solid var(--pro-green);
             font-size: 18px; line-height: 1.6; margin-bottom: 20px;
@@ -84,7 +85,7 @@
         .pro-opt { border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; cursor: pointer; border-radius: 8px; background: #fff; }
         .pro-opt.selected { background: #e9f5e6; border-color: var(--pro-green); font-weight: bold; }
 
-        /* FOOTER: Nút quay lại và tiếp theo về bên phải */
+        /* FOOTER */
         .pro-footer { 
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #444; color: white; padding: 10px 15px;
@@ -200,6 +201,7 @@
             </div>
         `;
 
+        // Render danh sách câu hỏi
         document.getElementById('q-grid').innerHTML = currentQuestions.map((_, i) => `
             <div class="q-num ${currentIdx === i ? 'active' : ''} ${answers[i] !== null ? 'done' : ''} ${flags[i] ? 'flagged' : ''}" 
                  onclick="goTo(${i})">${i + 1}</div>
@@ -230,7 +232,7 @@
     }
 
     window.submitExam = () => {
-        if(!confirm("終了しますか？ (Bạn có muốn nộp bài?)")) return;
+        if(!confirm("終了しますか？")) return;
         document.getElementById('exam-ui').style.display = "none";
         document.getElementById('result-screen').style.display = "block";
         
