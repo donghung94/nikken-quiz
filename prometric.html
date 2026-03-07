@@ -148,7 +148,7 @@
         if (setId === 'randomExam') {
             const theoryIds = ['1','2','3','4','5','6','7','8'];
             theoryIds.forEach(id => { if(qSets[id]) currentQuestions = currentQuestions.concat(qSets[id]); });
-            currentQuestions = currentQuestions.sort(() => Math.random() - 0.5).slice(0, 30);
+            currentQuestions = currentQuestions.sort(() => Math.random() - 0.5).slice(0, 40);
         } else if (qSets[setId]) {
             currentQuestions = [...qSets[setId]];
         }
