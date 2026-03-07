@@ -90,7 +90,7 @@
 
 <div class="app-container" id="exam-ui">
     <header class="pro-header">
-        <div style="font-size:12px;">特定技能試験</div>
+        <div style="font-size:12px;"> <button onclick="location.href='index.html'" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:4px;">🏠 Trang chủ</button></div>
         <div id="pro-timer" style="font-size:22px; font-weight:bold; color:#ffdd00;">60:00</div>
         <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 15px; border-radius:4px; font-weight:bold;">終了</button>
     </header>
@@ -219,8 +219,8 @@
             else {
                 html += `<div style="padding:15px 0; border-bottom:1px solid #eee;">
                     <p><b>Câu ${i+1}:</b> ${convertFurigana(q.q)}</p>
-                    <p style="color:red">Sai: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bỏ'}</p>
-                    <p style="color:green">Đúng: ${convertFurigana(q.options[q.answer])}</p>
+                    <p style="color:red">Sai: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bạn chưa chọn'}</p>
+                    <p style="color:green">Câu Đúng: ${convertFurigana(q.options[q.answer])}</p>
                 </div>`;
             }
         });
