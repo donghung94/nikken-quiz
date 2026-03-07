@@ -26,15 +26,27 @@
         }
         .status-bar { background: var(--pro-green); color: white; padding: 6px 12px; font-size: 12px; display: flex; justify-content: space-between; }
 
-        .pro-main { display: flex; flex: 1; overflow: hidden; position: relative; }
+       .pro-main { 
+    display: flex; 
+    flex: 1; 
+    overflow: hidden; /* Giữ nguyên dòng này */
+    position: relative; 
+}
 
-        /* SIDEBAR: Đã thêm padding-bottom để không bị che câu 40 */
-        .pro-sidebar { 
-            background: #f8f8f8; border-right: 1px solid var(--pro-border); 
-            overflow-y: auto; padding: 10px 5px; display: flex; 
-            padding-bottom: 100px !important; /* Khoảng trống để cuộn qua câu 40 */
-        }
-
+       /* Sidebar trái nút nhỏ */
+.pro-sidebar { 
+    width: 48px; 
+    background: #f8f8f8; 
+    border-right: 1px solid var(--pro-border); 
+    
+    /* QUAN TRỌNG: Thêm 3 dòng này để ép nó phải cuộn */
+    display: block !important; /* Đổi từ flex sang block */
+    overflow-y: scroll !important; /* Ép hiện thanh cuộn */
+    -webkit-overflow-scrolling: touch; /* Giúp lướt mượt trên iPhone */
+    
+    padding: 10px 4px;
+    padding-bottom: 120px !important; /* Khoảng trống để không bị Footer che câu 40 */
+}
         @media (min-width: 769px) {
             .pro-sidebar { width: 220px; flex-wrap: wrap; gap: 5px; align-content: flex-start; }
             .q-num { width: 45px; height: 45px; font-size: 14px; }
@@ -46,11 +58,19 @@
             .pro-main { margin-bottom: 75px; } 
         }
 
-        .q-num { 
-            border: 1px solid #999; background: #fff; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; border-radius: 4px;
-        }
+       .q-num { 
+    width: 38px; 
+    height: 38px; 
+    margin-bottom: 8px; /* Tạo khoảng cách dọc giữa các nút */
+    border: 1px solid #999; 
+    background: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    border-radius: 4px;
+    font-size: 12px;
+}
         .q-num.active { border: 2px solid var(--pro-green); background: #ffffd0; font-weight: bold; }
         .q-num.done { background: var(--pro-green); color: white; border-color: var(--pro-green); }
         .q-num.flagged { background: #facc15 !important; border-color: #eab308 !important; color: black; }
