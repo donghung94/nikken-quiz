@@ -89,7 +89,7 @@
   </script>
 
  <header class="header">
-  <div class="header-top" style="display: flex; justify-content: space-between; align-items: center;">
+  <div class="header-top">
     <div class="brand small">
       <img src="icon-192.png" alt="H" class="logo">
       <div class="titles">
@@ -199,6 +199,61 @@
 /* Nút Trang chủ và Nộp bài */
 .btn-home { font-size: 13px !important; padding: 5px 10px !important; }
 #submitBtn { font-weight: bold; border-radius: 8px; }
+    /* Header tổng chia thành cột dọc (2 hàng) */
+.header {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 15px;
+    background: #fff;
+    border-bottom: 2px solid #7fb069;
+    gap: 12px; /* Khoảng cách giữa hàng trên và hàng dưới */
+}
+
+/* Hàng trên: Đẩy 2 đầu */
+.header-top {
+    display: flex;
+    justify-content: space-between; /* Đẩy Logo sang trái, Trang chủ sang phải */
+    align-items: center;
+}
+
+/* Hàng dưới: Đẩy 2 đầu */
+.header-bottom {
+    display: flex;
+    justify-content: space-between; /* Đẩy Đảo câu sang trái, Giờ/Nộp bài sang phải */
+    align-items: center;
+}
+
+/* Các thành phần bổ trợ */
+.exam-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-red {
+    background: #ee0000 !important;
+    color: white !important;
+    font-weight: bold;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 8px;
+}
+
+.timer {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e40af;
+}
+
+.shuffle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f4ff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #d1d9ff;
+}
   </style>
 
   <div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
