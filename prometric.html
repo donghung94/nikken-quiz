@@ -12,97 +12,89 @@
             --pro-border: #cccccc;
         }
 
+        /* Reset bố cục để không bị tràn */
+        * { box-sizing: border-box; }
         body { 
             background-color: #f4f4f4; 
             font-family: sans-serif; 
             margin: 0; padding: 0; 
             display: flex; flex-direction: column; height: 100vh;
             overflow: hidden;
-            user-select: none;
         }
 
-        /* Header đen chuẩn */
+        /* Header chuẩn: Nút Home - Timer - Nộp bài */
         .pro-header { 
-            background: var(--pro-dark); color: white; padding: 10px 15px; 
+            background: var(--pro-dark); color: white; padding: 10px; 
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 10;
         }
-        
         .btn-home {
             background: #555; color: white; text-decoration: none;
             padding: 6px 12px; border-radius: 4px; font-size: 13px;
-            display: flex; align-items: center; gap: 5px;
         }
-
         .timer-box { font-size: 18px; font-weight: bold; color: #fff; }
 
-        /* Thanh trạng thái xanh */
+        /* Thanh trạng thái xanh: Tên câu hỏi - Tên thí sinh */
         .status-bar {
-            background: var(--pro-green); color: white; padding: 8px 15px;
+            background: var(--pro-green); color: white; padding: 6px 15px;
             font-size: 13px; display: flex; justify-content: space-between;
         }
 
-        .pro-main { display: flex; flex: 1; overflow: hidden; }
+        .pro-main { display: flex; flex: 1; overflow: hidden; width: 100%; }
 
-        /* Sidebar: Chỉ hiện trên máy tính, ẩn hoàn toàn trên điện thoại */
+        /* Sidebar: Chỉ hiện trên Desktop, ẩn hoàn toàn trên Mobile */
         .pro-sidebar { 
-            width: 220px; background: #ffffff; border-right: 1px solid var(--pro-border); 
-            padding: 15px; overflow-y: auto;
+            width: 200px; background: #ffffff; border-right: 1px solid var(--pro-border); 
+            padding: 10px; overflow-y: auto;
         }
-
         @media (max-width: 768px) {
-            .pro-sidebar { display: none !important; } /* Gỡ bỏ hoàn toàn để tránh bị đẩy khung */
+            .pro-sidebar { display: none !important; } 
         }
 
-        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .q-num { 
-            aspect-ratio: 1; border: 1px solid var(--pro-border); background: #f9f9f9; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; font-size: 12px; border-radius: 3px;
-        }
-        .q-num.active { border: 2px solid var(--pro-green); font-weight: bold; background: #fff; }
-        .q-num.done { background: var(--pro-green); color: white; }
-
-        /* Vùng câu hỏi: Tự giãn 100% trên điện thoại */
+        /* Nội dung chính: Căn giữa 100% trên điện thoại */
         .pro-content { 
             flex: 1; padding: 15px; overflow-y: auto; background: white;
             display: flex; flex-direction: column; align-items: center;
         }
-        .question-box { width: 100%; max-width: 700px; }
+        .question-box { width: 100%; max-width: 600px; }
         
+        /* Khung câu hỏi màu xám */
         .q-text { 
-            background: #f0f0f0; padding: 20px; border-radius: 5px;
-            font-size: 18px; line-height: 1.6; margin-bottom: 20px;
+            background: #f0f0f0; padding: 15px; border-radius: 5px;
+            font-size: 17px; line-height: 1.6; margin-bottom: 20px;
             border: 1px solid #ddd;
         }
 
-        /* Đáp án dạng thẻ to dễ bấm */
+        /* Đáp án dạng thẻ giống ảnh mẫu */
         .pro-opt { 
-            border: 1px solid var(--pro-border); padding: 18px; margin: 12px 0; 
-            cursor: pointer; border-radius: 8px; font-size: 16px;
+            border: 1px solid var(--pro-border); padding: 15px; margin: 10px 0; 
+            cursor: pointer; border-radius: 5px; font-size: 16px;
             background: #fff; transition: 0.2s;
         }
-        .pro-opt.selected { background: var(--pro-light-green); border-color: var(--pro-green); font-weight: bold; }
+        .pro-opt.selected { 
+            background: var(--pro-light-green); 
+            border-color: var(--pro-green); 
+            font-weight: bold; 
+        }
 
-        /* Footer cố định bên dưới */
+        /* Footer cố định phía dưới */
         .pro-footer { 
-            background: var(--pro-dark); padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            background: var(--pro-dark); padding: 12px;
+            display: flex; justify-content: space-between;
         }
         .btn-footer { 
             background: var(--pro-green); color: white; border: none; 
-            padding: 12px 30px; border-radius: 25px; cursor: pointer;
-            font-size: 15px; font-weight: bold;
+            padding: 10px 25px; border-radius: 20px; cursor: pointer;
+            font-size: 14px; font-weight: bold;
         }
         .btn-footer:disabled { opacity: 0.3; }
 
-        /* Kết quả */
+        ruby rt { font-size: 10px; color: #666; }
+        
+        /* Màn hình kết quả */
         #result-screen {
             display: none; position: fixed; inset: 0; background: #fff; 
             z-index: 1000; overflow-y: auto; padding: 20px;
         }
-
-        ruby rt { font-size: 10px; color: #555; }
     </style>
 </head>
 <body>
@@ -110,7 +102,7 @@
 <header class="pro-header">
     <a href="index.html" class="btn-home">🏠 Trang chủ</a>
     <div id="pro-timer" class="timer-box">60:00</div>
-    <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:8px 15px; border-radius:4px; font-weight:bold;">Nộp bài</button>
+    <button onclick="submitExam()" style="background:#cc0000; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold;">Nộp bài</button>
 </header>
 
 <div class="status-bar">
@@ -119,12 +111,8 @@
 </div>
 
 <div class="pro-main">
-    <aside class="pro-sidebar">
-        <div class="q-grid" id="q-grid"></div>
-        <div style="margin-top:20px; font-size:11px; line-height: 2;">
-            <p><span style="background:var(--pro-green); padding:2px 8px; color:white">■</span> Đã trả lời</p>
-            <p><span style="border:1px solid #ccc; padding:2px 8px;">□</span> Chưa trả lời</p>
-        </div>
+    <aside class="pro-sidebar" id="sidebar">
+        <div id="q-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
     </aside>
 
     <main class="pro-content">
@@ -140,11 +128,11 @@
 <div id="result-screen">
     <div style="max-width: 600px; margin: 0 auto; text-align: center;">
         <h2 style="color:var(--pro-green)">KẾT QUẢ BÀI THI</h2>
-        <div id="score-percent" style="font-size:64px; font-weight:bold; color:red; margin: 20px 0;">0%</div>
-        <div id="score-detail" style="font-size:18px; margin-bottom:30px;"></div>
+        <div id="score-percent" style="font-size:60px; font-weight:bold; color:red;">0%</div>
+        <div id="score-detail" style="margin: 20px 0;"></div>
         <div id="wrong-questions" style="text-align: left;"></div>
-        <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--pro-green); color:white; border:none; border-radius:8px; margin-top:20px; font-weight:bold; font-size:16px;">THI LẠI</button>
-        <button onclick="location.href='index.html'" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:8px; margin-top:10px; font-size:16px;">VỀ TRANG CHỦ</button>
+        <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--pro-green); color:white; border:none; border-radius:5px; font-weight:bold;">THI LẠI</button>
+        <button onclick="location.href='index.html'" style="width:100%; padding:15px; background:#666; color:white; border:none; border-radius:5px; margin-top:10px;">VỀ TRANG CHỦ</button>
     </div>
 </div>
 
@@ -170,7 +158,7 @@
         if (setId === 'randomExam') {
             const ids = ['1','2','3','4','5','6','7','8'];
             ids.forEach(id => { if(qSets[id]) currentQuestions = currentQuestions.concat(qSets[id]); });
-            // Lấy 40 câu ngẫu nhiên
+            // Cài đặt lấy 40 câu ngẫu nhiên
             currentQuestions = currentQuestions.sort(() => Math.random() - 0.5).slice(0, 40);
         } else if (qSets[setId]) {
             currentQuestions = [...qSets[setId]];
@@ -190,7 +178,7 @@
         
         document.getElementById('pro-quiz').innerHTML = `
             <div class="q-text">問題${currentIdx + 1}: <br>${convertFurigana(q.q)}</div>
-            ${q.img ? `<img src="${q.img}" style="width:100%; max-height:250px; object-fit:contain; margin-bottom:20px;">` : ''}
+            ${q.img ? `<img src="${q.img}" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px;">` : ''}
             <div>
                 ${q.options.map((opt, i) => `
                     <div class="pro-opt ${answers[currentIdx] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
@@ -200,17 +188,16 @@
             </div>
         `;
 
-        // Cập nhật grid số câu (chỉ hiển thị trên máy tính)
         const grid = document.getElementById('q-grid');
         if (grid) {
             grid.innerHTML = currentQuestions.map((_, i) => `
-                <div class="q-num ${currentIdx === i ? 'active' : ''} ${answers[i] !== null ? 'done' : ''}" 
+                <div style="padding:10px; border:1px solid #ccc; text-align:center; cursor:pointer; background:${answers[i]!==null?'#7fb069':(currentIdx===i?'#fff':'#f9f9f9')}; color:${answers[i]!==null?'white':'black'}" 
                      onclick="goTo(${i})">${i + 1}</div>
             `).join('');
         }
 
         document.getElementById('btn-prev').disabled = currentIdx === 0;
-        document.getElementById('btn-next').innerText = (currentIdx === currentQuestions.length - 1) ? "Hoàn thành" : "Tiếp theo";
+        document.getElementById('btn-next').innerText = currentIdx === currentQuestions.length - 1 ? "Nộp bài" : "Tiếp theo";
     }
 
     window.selectOpt = (i) => { answers[currentIdx] = i; renderExam(); };
@@ -225,33 +212,33 @@
     };
 
     function startTimer() {
-        const timer = setInterval(() => {
+        setInterval(() => {
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('pro-timer').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            if(timeLeft <= 0) { clearInterval(timer); submitExam(); }
+            if(timeLeft <= 0) submitExam();
         }, 1000);
     }
 
     window.submitExam = () => {
-        if(!confirm("Bạn có chắc chắn muốn kết thúc bài thi?")) return;
+        if(!confirm("Bạn muốn nộp bài?")) return;
         let correct = 0;
         let html = "";
         currentQuestions.forEach((q, i) => {
             if(answers[i] === q.answer) correct++;
             else {
-                html += `<div style="padding:15px 0; border-bottom:1px solid #eee;">
-                    <p style="font-weight:bold;">Câu ${i+1}: ${convertFurigana(q.q)}</p>
-                    <p style="color:red; margin:5px 0;">❌ Bạn chọn: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bỏ trống'}</p>
-                    <p style="color:green; font-weight:bold; margin:5px 0;">✅ Đáp án: ${convertFurigana(q.options[q.answer])}</p>
+                html += `<div style="padding:10px 0; border-bottom:1px solid #eee;">
+                    <p><b>Câu ${i+1}:</b> ${convertFurigana(q.q)}</p>
+                    <p style="color:red">Sai: ${answers[i] !== null ? convertFurigana(q.options[answers[i]]) : 'Bỏ trống'}</p>
+                    <p style="color:green">Đúng: ${convertFurigana(q.options[q.answer])}</p>
                 </div>`;
             }
         });
         document.getElementById('result-screen').style.display = "block";
         document.getElementById('score-percent').innerText = Math.round(correct/currentQuestions.length*100) + "%";
-        document.getElementById('score-detail').innerText = `Kết quả: ${correct} / ${currentQuestions.length} câu đúng.`;
-        document.getElementById('wrong-questions').innerHTML = html || "<p style='color:green'>Chúc mừng! Bạn đã trả lời đúng tất cả các câu.</p>";
+        document.getElementById('score-detail').innerText = `Đúng ${correct}/${currentQuestions.length} câu.`;
+        document.getElementById('wrong-questions').innerHTML = html;
     };
 
     if (loadData()) {
