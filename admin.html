@@ -61,144 +61,133 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    // Thêm getDoc vào đây để có thể đọc dữ liệu từng user
-    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyALblbqW_VrZh2r7sPJ8Q6XT2fGbk0dsFg",
-        authDomain: "donghung-3208d.firebaseapp.com",
-        projectId: "donghung-3208d",
-        storageBucket: "donghung-3208d.firebasestorage.app",
-        messagingSenderId: "753379492663",
-        appId: "1:753379492663:web:baff34f2c0bac00e02d0b2"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyALblbqW_VrZh2r7sPJ8Q6XT2fGbk0dsFg",
+        authDomain: "donghung-3208d.firebaseapp.com",
+        projectId: "donghung-3208d",
+        storageBucket: "donghung-3208d.firebasestorage.app",
+        messagingSenderId: "753379492663",
+        appId: "1:753379492663:web:baff34f2c0bac00e02d0b2"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    // Hiển thị thiết bị hiện tại
-    const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
-    document.getElementById('current-admin-device').innerHTML = `Máy quản trị: ${navigator.platform} | ID: ${myDeviceId}`;
+    // Hiển thị thiết bị hiện tại
+    const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
+    document.getElementById('current-admin-device').innerHTML = `Máy quản trị: ${navigator.platform} | ID: ${myDeviceId}`;
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = "login.html"; return; }
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = "login.html"; return; }
 
-        try {
-            // --- ĐOẠN CODE CHẶN USER THƯỜNG ---
-            const userDocRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userDocRef);
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
 
-            if (!userSnap.exists() || userSnap.data().role !== 'admin') {
-                alert("🚫 Bạn không có quyền truy cập trang quản trị!");
-                window.location.href = "index.html"; // Đẩy về trang chủ
-                return;
-            }
-            // ---------------------------------
+            querySnapshot.forEach((userDoc) => {
+                const data = userDoc.data();
+                const uid = userDoc.id;
+                const userGroup = data.group || "1";
 
-            const querySnapshot = await getDocs(collection(db, "users"));
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
+                let deviceIdText = "Trống";
+                if (data.devices) {
+                    const ids = Object.keys(data.devices);
+                    if (ids.length > 0) deviceIdText = ids[0];
+                }
 
-            querySnapshot.forEach((userDoc) => {
-                const data = userDoc.data();
-                const uid = userDoc.id;
-                const userGroup = data.group || "1";
+                const row = `
+                    <tr>
+                        <td>
+                            <strong>${data.name || 'N/A'}</strong><br>
+                            <small>${data.email}</small>
+                        </td>
+                        <td>
+                            ${userGroup === '1' ? '<span class="badge-g1">NHÓM 1</span>' : '<span class="badge-g2">NHÓM 2</span>'}<br>
+                            <select class="group-select" onchange="window.changeGroup('${uid}', this.value)">
+                                <option value="1" ${userGroup === '1' ? 'selected' : ''}>Chuyển G1</option>
+                                <option value="2" ${userGroup === '2' ? 'selected' : ''}>Chuyển G2</option>
+                            </select>
+                        </td>
+                        <td>
+                            ${data.isPremium ? '<span class="badge-premium">⭐ PREMIUM</span>' : '<span class="badge-free">FREE (90c)</span>'}
+                        </td>
+                        <td>
+                            <b>${data.device_count || 0}/1</b>
+                            <span class="device-id">${deviceIdText}</span>
+                        </td>
+                        <td class="${data.status === 'banned' ? 'status-banned' : 'status-active'}">
+                            ${data.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
+                        </td>
+                        <td>
+                            <button class="btn btn-premium" onclick="window.togglePremium('${uid}', ${!data.isPremium})">
+                                ${data.isPremium ? 'Hạ cấp' : 'Mở Premium'}
+                            </button>
+                            <button class="btn btn-reset" onclick="window.resetDevice('${uid}')">Reset Máy</button>
+                            <button class="btn ${data.status === 'banned' ? 'btn-unban' : 'btn-ban'}" 
+                                    onclick="window.toggleStatus('${uid}', '${data.status === 'banned' ? 'active' : 'banned'}')">
+                                ${data.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                userList.innerHTML += row;
+            });
 
-                let deviceIdText = "Trống";
-                if (data.devices) {
-                    const ids = Object.keys(data.devices);
-                    if (ids.length > 0) deviceIdText = ids[0];
-                }
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('adminTable').style.display = 'table';
 
-                const row = `
-                    <tr>
-                        <td>
-                            <strong>${data.name || 'N/A'}</strong><br>
-                            <small>${data.email}</small>
-                        </td>
-                        <td>
-                            ${userGroup === '1' ? '<span class="badge-g1">NHÓM 1</span>' : '<span class="badge-g2">NHÓM 2</span>'}<br>
-                            <select class="group-select" onchange="window.changeGroup('${uid}', this.value)">
-                                <option value="1" ${userGroup === '1' ? 'selected' : ''}>Chuyển G1</option>
-                                <option value="2" ${userGroup === '2' ? 'selected' : ''}>Chuyển G2</option>
-                            </select>
-                        </td>
-                        <td>
-                            ${data.isPremium ? '<span class="badge-premium">⭐ PREMIUM</span>' : '<span class="badge-free">FREE (90c)</span>'}
-                        </td>
-                        <td>
-                            <b>${data.device_count || 0}/1</b>
-                            <span class="device-id">${deviceIdText}</span>
-                        </td>
-                        <td class="${data.status === 'banned' ? 'status-banned' : 'status-active'}">
-                            ${data.status === 'banned' ? 'Đã khóa' : 'Hoạt động'}
-                        </td>
-                        <td>
-                            <button class="btn btn-premium" onclick="window.togglePremium('${uid}', ${!data.isPremium})">
-                                ${data.isPremium ? 'Hạ cấp' : 'Mở Premium'}
-                            </button>
-                            <button class="btn btn-reset" onclick="window.resetDevice('${uid}')">Reset Máy</button>
-                            <button class="btn ${data.status === 'banned' ? 'btn-unban' : 'btn-ban'}" 
-                                    onclick="window.toggleStatus('${uid}', '${data.status === 'banned' ? 'active' : 'banned'}')">
-                                ${data.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                userList.innerHTML += row;
-            });
+        } catch (error) {
+            document.getElementById('loading').innerHTML = "❌ Lỗi: " + error.message;
+        }
+    });
 
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('adminTable').style.display = 'table';
+    // --- HÀM XỬ LÝ DỮ LIỆU ---
 
-        } catch (error) {
-            document.getElementById('loading').innerHTML = "❌ Lỗi: " + error.message;
-        }
-    });
+    window.changeGroup = async (uid, newGroup) => {
+        if (confirm(`Chuyển học viên sang Nhóm ${newGroup}?`)) {
+            try {
+                await updateDoc(doc(db, "users", uid), { group: newGroup });
+                alert("Đã đổi nhóm thành công!");
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+    };
 
-    // --- GIỮ NGUYÊN CÁC HÀM WINDOW. Ở PHÍA DƯỚI ---
-    window.changeGroup = async (uid, newGroup) => {
-        if (confirm(`Chuyển học viên sang Nhóm ${newGroup}?`)) {
-            try {
-                await updateDoc(doc(db, "users", uid), { group: newGroup });
-                alert("Đã đổi nhóm thành công!");
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
+    window.togglePremium = async (uid, newStatus) => {
+        const text = newStatus ? "CẤP QUYỀN PREMIUM (Mở toàn bộ đề)" : "HỦY QUYỀN PREMIUM (Về bản Free)";
+        if (confirm(text)) {
+            try {
+                await updateDoc(doc(db, "users", uid), { isPremium: newStatus });
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+    };
 
-    window.togglePremium = async (uid, newStatus) => {
-        const text = newStatus ? "CẤP QUYỀN PREMIUM (Mở toàn bộ đề)" : "HỦY QUYỀN PREMIUM (Về bản Free)";
-        if (confirm(text)) {
-            try {
-                await updateDoc(doc(db, "users", uid), { isPremium: newStatus });
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
+    window.resetDevice = async (uid) => {
+        if (confirm("Reset thiết bị? Học viên có thể đăng nhập trên máy mới.")) {
+            try {
+                await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
+                alert("Đã reset!");
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+    };
 
-    window.resetDevice = async (uid) => {
-        if (confirm("Reset thiết bị? Học viên có thể đăng nhập trên máy mới.")) {
-            try {
-                await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
-                alert("Đã reset!");
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
-
-    window.toggleStatus = async (uid, newStatus) => {
-        if (confirm("Xác nhận thay đổi trạng thái đăng nhập?")) {
-            try {
-                await updateDoc(doc(db, "users", uid), { status: newStatus });
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
+    window.toggleStatus = async (uid, newStatus) => {
+        if (confirm("Xác nhận thay đổi trạng thái đăng nhập?")) {
+            try {
+                await updateDoc(doc(db, "users", uid), { status: newStatus });
+                location.reload();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+    };
 </script>
 
 </body>
-</html> 
+</html>
