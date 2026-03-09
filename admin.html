@@ -62,7 +62,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -78,12 +78,34 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Hiển thị thiết bị hiện tại
-    const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
-    document.getElementById('current-admin-device').innerHTML = `Máy quản trị: ${navigator.platform} | ID: ${myDeviceId}`;
-
+    // --- ĐOẠN KIỂM TRA QUYỀN ADMIN (DÁN VÀO ĐÂY) ---
     onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = "login.html"; return; }
+        if (!user) { 
+            window.location.href = "login.html"; 
+            return; 
+        }
+
+        // Lấy dữ liệu user hiện tại để check role
+        try {
+            const adminDoc = await getDoc(doc(db, "users", user.uid));
+            if (!adminDoc.exists() || adminDoc.data().role !== 'admin') {
+                alert("⚠️ Khu vực này chỉ dành cho Admin!");
+                window.location.href = "index.html"; // Đá người dùng thường về trang chủ
+                return;
+            }
+            
+            // Nếu đúng là admin thì mới chạy tiếp hàm load danh sách
+            loadUserListData();
+        } catch (error) {
+            console.error("Lỗi xác thực Admin:", error);
+            window.location.href = "login.html";
+        }
+    });
+
+    // Gom logic hiển thị vào một hàm để gọi sau khi check Admin xong
+    async function loadUserListData() {
+        const myDeviceId = localStorage.getItem('my_device_id') || "Chưa xác định";
+        document.getElementById('current-admin-device').innerHTML = `Máy quản trị: ${navigator.platform} | ID: ${myDeviceId}`;
 
         try {
             const querySnapshot = await getDocs(collection(db, "users"));
@@ -93,8 +115,11 @@
             querySnapshot.forEach((userDoc) => {
                 const data = userDoc.data();
                 const uid = userDoc.id;
-                const userGroup = data.group || "1";
+                
+                // Bỏ qua không hiển thị chính mình (admin) trong danh sách quản lý nếu muốn
+                // if (uid === auth.currentUser.uid) return;
 
+                const userGroup = data.group || "1";
                 let deviceIdText = "Trống";
                 if (data.devices) {
                     const ids = Object.keys(data.devices);
@@ -141,14 +166,12 @@
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('adminTable').style.display = 'table';
-
         } catch (error) {
             document.getElementById('loading').innerHTML = "❌ Lỗi: " + error.message;
         }
-    });
+    }
 
-    // --- HÀM XỬ LÝ DỮ LIỆU ---
-
+    // --- GIỮ NGUYÊN CÁC HÀM window.changeGroup, window.togglePremium bên dưới ---
     window.changeGroup = async (uid, newGroup) => {
         if (confirm(`Chuyển học viên sang Nhóm ${newGroup}?`)) {
             try {
@@ -158,35 +181,7 @@
             } catch (e) { alert("Lỗi: " + e.message); }
         }
     };
-
-    window.togglePremium = async (uid, newStatus) => {
-        const text = newStatus ? "CẤP QUYỀN PREMIUM (Mở toàn bộ đề)" : "HỦY QUYỀN PREMIUM (Về bản Free)";
-        if (confirm(text)) {
-            try {
-                await updateDoc(doc(db, "users", uid), { isPremium: newStatus });
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
-
-    window.resetDevice = async (uid) => {
-        if (confirm("Reset thiết bị? Học viên có thể đăng nhập trên máy mới.")) {
-            try {
-                await updateDoc(doc(db, "users", uid), { device_count: 0, devices: {} });
-                alert("Đã reset!");
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
-
-    window.toggleStatus = async (uid, newStatus) => {
-        if (confirm("Xác nhận thay đổi trạng thái đăng nhập?")) {
-            try {
-                await updateDoc(doc(db, "users", uid), { status: newStatus });
-                location.reload();
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-    };
+    // ... copy các hàm togglePremium, resetDevice, toggleStatus còn lại của bạn vào đây ...
 </script>
 
 </body>
