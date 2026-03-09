@@ -30,12 +30,15 @@
                     const currentDeviceId = localStorage.getItem('my_device_id');
                     const devices = data.devices || {};
 
-                    if (data.device_count >= 1 && !devices[currentDeviceId]) {
-                        alert("🚫 Thiết bị không hợp lệ. Bạn sẽ bị đăng xuất.");
-                        await signOut(auth);
-                        location.href = "login.html";
-                        return;
-                    }
+                    const isAdmin = data.role === 'admin'; // Lấy quyền từ Firestore
+
+// Nếu KHÔNG PHẢI admin thì mới kiểm tra thiết bị
+if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
+    alert("🚫 Thiết bị không hợp lệ. Bạn sẽ bị đăng xuất.");
+    await signOut(auth);
+    location.href = "login.html";
+    return;
+}
 
                     const urlParams = new URLSearchParams(window.location.search);
                     const setNum = urlParams.get('set');
