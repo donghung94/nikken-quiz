@@ -11,7 +11,7 @@
 </head>
 
 <body class="mono">
-  <script type="module">
+<script type="module">
     import { auth, db } from "./firebase.js"; 
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -26,25 +26,27 @@
 
                 if (userSnap.exists()) {
                     const data = userSnap.data();
-                    const isPremium = data.isPremium === true;
+                    const isAdmin = data.role === 'admin'; // Xác định quyền Admin
+                    const isPremium = data.isPremium === true || isAdmin; // Admin mặc định là Premium
+                    
                     const currentDeviceId = localStorage.getItem('my_device_id');
                     const devices = data.devices || {};
 
-                    const isAdmin = data.role === 'admin'; // Lấy quyền từ Firestore
+                    // --- 1. CHẶN THIẾT BỊ (Bỏ qua nếu là Admin) ---
+                    if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
+                        alert("🚫 Thiết bị không hợp lệ. Bạn sẽ bị đăng xuất.");
+                        await signOut(auth);
+                        location.href = "login.html";
+                        return;
+                    }
 
-// Nếu KHÔNG PHẢI admin thì mới kiểm tra thiết bị
-if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
-    alert("🚫 Thiết bị không hợp lệ. Bạn sẽ bị đăng xuất.");
-    await signOut(auth);
-    location.href = "login.html";
-    return;
-}
-
+                    // --- 2. KIỂM TRA QUYỀN TRUY CẬP ĐỀ (Premium) ---
                     const urlParams = new URLSearchParams(window.location.search);
                     const setNum = urlParams.get('set');
                     const practice = urlParams.get('practice');
                     const allowedSets = ['1', '2', '3']; 
 
+                    // Nếu không phải Premium (và không phải Admin) thì mới hiện Modal khóa
                     if (!isPremium) {
                         if ((setNum && !allowedSets.includes(setNum)) || practice || setNum === 'randomExam') {
                             const modal = document.getElementById('premium-modal');
@@ -57,14 +59,13 @@ if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
                         }
                     }
 
+                    // Hiển thị tên (thêm chữ Admin nếu là admin cho dễ phân biệt)
                     const nameDisplay = document.getElementById('user-display-name');
                     if (nameDisplay) {
-                        nameDisplay.innerText = data.name || "Học viên";
+                        nameDisplay.innerText = isAdmin ? `(AD) ${data.name}` : (data.name || "Học viên");
                     }
 
-                    // --- KHỞI TẠO NÚT ĐẢO CÂU (Đặt trong này để đảm bảo đã load xong DOM) ---
                     initShuffleLogic();
-
                 }
             } catch (error) {
                 console.error("Lỗi xác thực:", error);
@@ -89,7 +90,7 @@ if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
             }
         };
     }
-  </script>
+</script>
 
  <header class="header">
   <div class="header-top">
