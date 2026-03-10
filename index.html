@@ -46,7 +46,7 @@
                     const devices = data.devices || {};
 
                     // 1. Kiểm tra thiết bị
-                    if (data.device_count >= 1 && !devices[currentDeviceId]) {
+                   if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
                         alert("🚫 Tài khoản chỉ được dùng trên 1 máy.");
                         await signOut(auth);
                         location.href = "login.html";
@@ -94,10 +94,11 @@
                                 isLocked = true;
                             }
                         } 
-                        else if (isPremium && practiceParam) {
-                            const requiredG = "g" + userGroup;
-                            if (!practiceParam.includes(requiredG)) {
-                                isLocked = true;
+                        // MỚI (Thêm !isAdmin vào để Admin không bị check Group):
+                        else if (isPremium && practiceParam && !isAdmin) { 
+                        const requiredG = "g" + userGroup;
+                       if (!practiceParam.includes(requiredG)) {
+                        isLocked = true;
                             }
                         }
 
