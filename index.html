@@ -40,6 +40,8 @@
 
                 if (userSnap.exists()) {
                     const data = userSnap.data();
+                  // --- THÊM DÒNG NÀY ĐỂ XÁC ĐỊNH ADMIN ---
+                    const isAdmin = data.role === 'admin';
                     const currentDeviceId = localStorage.getItem('my_device_id');
                     const devices = data.devices || {};
 
@@ -52,7 +54,7 @@
                     }
 
                     // 2. Thông tin tài khoản
-                    const isPremium = data.isPremium === true;
+                   const isPremium = data.isPremium === true || isAdmin;
                     const userGroup = data.group || "1";
                     const allowedSets = ['1', '2', '3'];
 
