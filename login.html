@@ -158,6 +158,8 @@
                 } else {
                     // TRƯỜNG HỢP 2: ĐÃ CÓ HỒ SƠ
                     const userData = userSnap.data();
+                    // Tạo biến kiểm tra Admin
+                    const isAdmin = userData.role === 'admin';
                     if (userData.status === 'banned') {
                         await signOut(auth);
                         throw new Error("Tài khoản đã bị khóa.");
@@ -173,7 +175,7 @@
                         });
                     } else {
                         // B. Nếu là máy mới hoàn toàn
-                        if (deviceCount >= 1) { 
+                        if (!isAdmin && deviceCount >= 1) {
                             // Chặn ngay vì đã đủ 1 máy
                             await signOut(auth);
                             throw new Error("🚫 Tài khoản chỉ được sử dụng trên 1 thiết bị. Vui lòng liên hệ Admin để Reset.");
@@ -184,8 +186,8 @@
                                     name: currentDeviceName,
                                     addedAt: serverTimestamp(),
                                     last_login: serverTimestamp()
-                                },
-                                device_count: 1 // Ghi đè thành 1
+                               },
+            device_count: isAdmin ? deviceCount : 1 // Admin thì giữ nguyên hoặc tăng, không ép về 1
                             });
                         }
                     }
