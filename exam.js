@@ -101,7 +101,25 @@
       quizEl.innerHTML = "<p>Không có dữ liệu câu hỏi.</p>";
       return;
     }
+// --- ĐOẠN THÊM MỚI ĐỂ XỬ LÝ VIDEO ---
+    const videoContainer = document.getElementById('videoContainer');
+    const examVideo = document.getElementById('examVideo');
+    
+    // DATA ở đây là biến chứa bộ đề gốc của bạn (chứa videoUrl)
+    const videoUrl = DATA.videoUrl; 
 
+    if (videoContainer && examVideo) {
+      // Nếu là câu đầu tiên (cur === 0) và bộ đề có video
+      if (cur === 0 && videoUrl) {
+          videoContainer.style.display = 'block';
+          if (!examVideo.src) examVideo.src = videoUrl;
+      } else {
+          // Sang câu khác hoặc không có video thì ẩn và dừng phát
+          videoContainer.style.display = 'none';
+          examVideo.src = ""; 
+      }
+    }
+    // --- HẾT ĐOẠN THÊM MỚI ---
     const q = questions[cur];
     const hasAnswered = user[cur] !== null;
 
