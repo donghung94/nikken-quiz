@@ -12,19 +12,27 @@
     normalizedPracticeId = practiceId;
   }
 
-  // ================== LẤY DỮ LIỆU ==================
-  if (normalizedPracticeId && window.PRACTICE_SETS && window.PRACTICE_SETS[normalizedPracticeId]) {
-    DATA = JSON.parse(JSON.stringify(window.PRACTICE_SETS[normalizedPracticeId]));
-    window.questions = window.PRACTICE_SETS[normalizedPracticeId];
+// ================== LẤY DỮ LIỆU (CẬP NHẬT) ==================
+  let rawData = null;
+  if (normalizedPracticeId && window.PRACTICE_SETS) {
+    rawData = window.PRACTICE_SETS[normalizedPracticeId];
+  } else if (setId && window.QUESTION_SETS) {
+    rawData = window.QUESTION_SETS[setId];
   }
-  else if (setId && window.QUESTION_SETS && window.QUESTION_SETS[setId]) {
-    DATA = JSON.parse(JSON.stringify(window.QUESTION_SETS[setId]));
-    window.questions = window.QUESTION_SETS[setId];
+
+  // Chuyển đổi dữ liệu về chuẩn đối tượng để lấy videoUrl
+  if (Array.isArray(rawData)) {
+    // Nếu dữ liệu cũ là mảng, ta đưa vào object
+    DATA = { questions: rawData, videoUrl: null };
+  } else if (rawData) {
+    // Nếu đã là object (như cách bạn mới sửa)
+    DATA = rawData;
+  } else {
+    DATA = { questions: [], videoUrl: null };
   }
-  else {
-    DATA = [];
-    window.questions = [];
-  }
+
+  // Đây là biến quan trọng để các hàm bên dưới không bị lỗi
+  const sourceQuestions = DATA.questions || [];
 
   const quizEl = $("#quiz");
   const resEl = $("#result");
