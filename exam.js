@@ -32,6 +32,20 @@
   const redoBtn = $("#redoWrong");
   const timerEl = $("#timer");
 
+  // ================== XỬ LÝ HIỂN THỊ VIDEO ==================
+  const vContainer = $("#videoContainer");
+  const vIframe = $("#examVideo");
+  let videoUrl = DATA.videoUrl || null; // Lấy link video nếu có
+
+  if (vContainer && vIframe) {
+    if (videoUrl) {
+      vContainer.style.display = "block"; // Hiện khung video
+      vIframe.src = videoUrl;
+    } else {
+      vContainer.style.display = "none";  // Ẩn nếu không có video
+    }
+  }
+
   // ---------------- TIMER ----------------
   let timeLeft = 3600;
   const tick = () => {
@@ -54,7 +68,6 @@
   }
 
   // ================== KIỂM TRA CHẾ ĐỘ ĐẢO CÂU (MỚI) ==================
-  // Lấy trạng thái từ nút gạt ở Header
   const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
   const sourceQuestions = DATA.questions || DATA;
 
@@ -67,15 +80,11 @@
       correct: i === correctIndex
     }));
 
-    // Chỉ đảo đáp án nếu nút gạt đang BẬT
     if (isShuffleActive) shuffle(opts);
-
     return { ...q, options: opts };
   });
 
-  // Chỉ đảo thứ tự câu hỏi nếu nút gạt đang BẬT
   if (isShuffleActive) shuffle(questions);
-
 
   let cur = 0;
   const user = new Array(questions.length).fill(null);
@@ -192,6 +201,8 @@
     }).join("");
 
     quizEl.style.display="none";
+    if (vContainer) vContainer.style.display = "none"; // Ẩn video khi xem điểm
+    
     resEl.style.display="block";
     resEl.innerHTML = `
       <div class="result-title">✅ Bạn làm đúng ${correct}/${questions.length}</div>
@@ -209,6 +220,7 @@
       quizEl.style.display="block";
       resEl.style.display="none";
       redoBtn.style.display="none";
+      if(vContainer && videoUrl) vContainer.style.display="block"; // Hiện lại video nếu làm lại
       render();
     };
   }
