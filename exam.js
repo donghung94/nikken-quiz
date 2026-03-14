@@ -141,7 +141,7 @@
       </div>
       <div id="explainBox" class="explain-box" style="display:${hasAnswered?"block":"none"};">
         ${q.vi ? `<div><b>Dịch:</b> ${q.vi}</div>` : ""}
-        ${q.explain ? `<div><b>📘 Giải thích:</b> ${q.explain}</div>` : ""}
+       ${q.explain ? `<div><b>📘 Giải thích:</b> ${q.explain.replace(/\n/g, '<br>')}</div>` : ""}
         ${q.tip ? `<div class="tip">${q.tip}</div>` : ""}
       </div>
     `;
@@ -207,7 +207,7 @@
           <div class="answer-line">❌ <b>Bạn chọn:</b> ${picked!==null?q.options[picked].text:"(chưa chọn)"}</div>
           <div class="answer-line">✅ <b>Đáp án đúng:</b> ${right.text}</div>
           ${q.vi?`<div><b>Dịch:</b> ${q.vi}</div>`:""}
-          ${q.explain?`<div class="explain-box"><b>📘 Giải thích:</b> ${q.explain}</div>`:""}
+         ${q.explain ? `<div><b>📘 Giải thích:</b> ${q.explain.replace(/\n/g, '<br>')}</div>` : ""}
           ${q.tip?`<div class="tip">${q.tip}</div>`:""}
         </div>
       `;
