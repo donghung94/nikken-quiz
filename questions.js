@@ -1,6 +1,7 @@
-// questions.js — Đề 1 (問1〜問8)
 window.QUESTION_SETS = window.QUESTION_SETS || {};
-window.QUESTION_SETS["1"] = [
+window.QUESTION_SETS["1"] = {
+  "videoUrl": "https://drive.google.com/file/d/MÃ_VIDEO_CỦA_BẠN/preview", 
+  "questions": [
 {
   id: 1,
   q: "問1 スプリンクラーは、なんの工事（こうじ）か。",
