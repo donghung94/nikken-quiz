@@ -12,27 +12,19 @@
     normalizedPracticeId = practiceId;
   }
 
-// ================== LẤY DỮ LIỆU (CẬP NHẬT) ==================
-  let rawData = null;
-  if (normalizedPracticeId && window.PRACTICE_SETS) {
-    rawData = window.PRACTICE_SETS[normalizedPracticeId];
-  } else if (setId && window.QUESTION_SETS) {
-    rawData = window.QUESTION_SETS[setId];
+  // ================== LẤY DỮ LIỆU ==================
+  if (normalizedPracticeId && window.PRACTICE_SETS && window.PRACTICE_SETS[normalizedPracticeId]) {
+    DATA = JSON.parse(JSON.stringify(window.PRACTICE_SETS[normalizedPracticeId]));
+    window.questions = window.PRACTICE_SETS[normalizedPracticeId];
   }
-
-  // Chuyển đổi dữ liệu về chuẩn đối tượng để lấy videoUrl
-  if (Array.isArray(rawData)) {
-    // Nếu dữ liệu cũ là mảng, ta đưa vào object
-    DATA = { questions: rawData, videoUrl: null };
-  } else if (rawData) {
-    // Nếu đã là object (như cách bạn mới sửa)
-    DATA = rawData;
-  } else {
-    DATA = { questions: [], videoUrl: null };
+  else if (setId && window.QUESTION_SETS && window.QUESTION_SETS[setId]) {
+    DATA = JSON.parse(JSON.stringify(window.QUESTION_SETS[setId]));
+    window.questions = window.QUESTION_SETS[setId];
   }
-
-  // Đây là biến quan trọng để các hàm bên dưới không bị lỗi
-  const sourceQuestions = DATA.questions || [];
+  else {
+    DATA = [];
+    window.questions = [];
+  }
 
   const quizEl = $("#quiz");
   const resEl = $("#result");
@@ -109,25 +101,7 @@
       quizEl.innerHTML = "<p>Không có dữ liệu câu hỏi.</p>";
       return;
     }
-// --- ĐOẠN THÊM MỚI ĐỂ XỬ LÝ VIDEO ---
-    const videoContainer = document.getElementById('videoContainer');
-    const examVideo = document.getElementById('examVideo');
-    
-    // DATA ở đây là biến chứa bộ đề gốc của bạn (chứa videoUrl)
-    const videoUrl = DATA.videoUrl; 
 
-    if (videoContainer && examVideo) {
-      // Nếu là câu đầu tiên (cur === 0) và bộ đề có video
-      if (cur === 0 && videoUrl) {
-          videoContainer.style.display = 'block';
-          if (!examVideo.src) examVideo.src = videoUrl;
-      } else {
-          // Sang câu khác hoặc không có video thì ẩn và dừng phát
-          videoContainer.style.display = 'none';
-          examVideo.src = ""; 
-      }
-    }
-    // --- HẾT ĐOẠN THÊM MỚI ---
     const q = questions[cur];
     const hasAnswered = user[cur] !== null;
 
