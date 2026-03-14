@@ -34,12 +34,12 @@
 
   // ================== XỬ LÝ HIỂN THỊ VIDEO ==================
   const vContainer = $("#videoContainer");
-  const vIframe = $("#examVideo");
+  const vBtn = $("#videoBtn"); // Bắt đúng ID của nút bấm
   let videoUrl = DATA.videoUrl || null; 
 
-  // Chỉ gán link video 1 lần lúc đầu nếu có
-  if (vIframe && videoUrl) {
-    vIframe.src = videoUrl;
+  // Gán link video vào thuộc tính href của nút bấm
+  if (vBtn && videoUrl) {
+    vBtn.href = videoUrl;
   }
 
   // ---------------- TIMER ----------------
@@ -107,7 +107,7 @@
       return;
     }
 
-    // --- LOGIC ẨN/HIỆN VIDEO THEO CÂU HỎI ---
+    // --- LOGIC ẨN/HIỆN NÚT VIDEO THEO CÂU HỎI ---
     if (vContainer) {
       if (cur === 0 && videoUrl) {
         vContainer.style.display = "block"; // Chỉ hiện ở câu đầu tiên
@@ -172,14 +172,9 @@
 
     $("#backBtn").onclick = () => { if (cur > 0) { cur--; render(); } };
     
-    // Nút Tiếp theo: Xử lý ngắt video khi chuyển từ câu 1 sang câu 2
+    // Nút Tiếp theo
     $("#nextBtn").onclick = () => { 
       if (user[cur] !== null && cur < questions.length - 1) { 
-        if (cur === 0 && vIframe) {
-            // Thủ thuật: load lại iframe để ép dừng video YouTube đang phát
-            let currentSrc = vIframe.src;
-            vIframe.src = currentSrc; 
-        }
         cur++; 
         render(); 
       } 
@@ -220,9 +215,8 @@
 
     quizEl.style.display="none";
     
-    // Tắt và ẩn video khi nộp bài
+    // Ẩn nút video khi nộp bài
     if (vContainer) vContainer.style.display = "none"; 
-    if (vIframe) vIframe.src = vIframe.src;
     
     resEl.style.display="block";
     resEl.innerHTML = `
