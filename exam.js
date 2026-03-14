@@ -32,15 +32,26 @@
   const redoBtn = $("#redoWrong");
   const timerEl = $("#timer");
 
-  // ================== XỬ LÝ HIỂN THỊ VIDEO ==================
-  const vContainer = $("#videoContainer");
-  const vIframe = $("#examVideo");
-  let videoUrl = DATA.videoUrl || null; 
+// ================== XỬ LÝ HIỂN THỊ NÚT BẤM VIDEO ==================
+const vContainer = $("#videoContainer");
+const vBtn = $("#videoBtn");
+let videoUrl = DATA.videoUrl || null; 
 
-  // Chỉ gán link video 1 lần lúc đầu nếu có
-  if (vIframe && videoUrl) {
-    vIframe.src = videoUrl;
+// Hàm này sẽ được gọi bên trong hàm render()
+function updateVideoDisplay(currentStep) {
+  if (vContainer) {
+    // Chỉ hiển thị ở câu đầu tiên (index = 0) và nếu có dữ liệu videoUrl
+    if (currentStep === 0 && videoUrl) {
+      vContainer.style.display = "block";
+      vBtn.href = videoUrl; // Gán link video vào nút bấm
+    } else {
+      vContainer.style.display = "none";
+    }
   }
+}
+
+// Trong hàm render() của bạn, hãy tìm đoạn xử lý ẩn hiện video cũ và thay bằng:
+updateVideoDisplay(cur);
 
   // ---------------- TIMER ----------------
   let timeLeft = 3600;
