@@ -1,77 +1,34 @@
 (function () {
   const $ = (sel) => document.querySelector(sel);
   const params = new URLSearchParams(location.search);
-
   const setId = params.get("set");
   const practiceId = params.get("practice");
-  
-  // ================== LẤY DỮ LIỆU & CHUẨN HÓA ==================
-  let rawData = null;
-  let normalizedId = practiceId || setId;
 
-  if (practiceId && window.PRACTICE_SETS) {
-    rawData = window.PRACTICE_SETS[practiceId];
-  } else if (setId && window.QUESTION_SETS) {
-    rawData = window.QUESTION_SETS[setId];
+  // --- LẤY DỮ LIỆU KIỂU CŨ CỦA BẠN ---
+  let DATA = [];
+  let videoUrl = null;
+
+  if (practiceId && window.PRACTICE_SETS && window.PRACTICE_SETS[practiceId]) {
+    DATA = window.PRACTICE_SETS[practiceId];
+  } else if (setId && window.QUESTION_SETS && window.QUESTION_SETS[setId]) {
+    DATA = window.QUESTION_SETS[setId];
   }
 
-  // Khởi tạo DATA chuẩn để chứa videoUrl và questions
-  let DATA = { questions: [], videoUrl: null };
-
-  if (Array.isArray(rawData)) {
-    DATA.questions = rawData; // Nếu là mảng cũ
-  } else if (rawData && rawData.questions) {
-    DATA = rawData; // Nếu là object mới có videoUrl
+  // --- ĐOẠN "CẤP CỨU": TỰ NHẬN DIỆN NẾU LÀ OBJECT MỚI ---
+  let finalQuestions = [];
+  if (Array.isArray(DATA)) {
+    finalQuestions = DATA; // Nếu là mảng cũ, chạy bình thường
+  } else if (DATA && DATA.questions) {
+    finalQuestions = DATA.questions; // Nếu là object mới, bóc lấy questions
+    videoUrl = DATA.videoUrl;      // Lấy link video
   }
 
-  const sourceQuestions = DATA.questions || [];
-  const videoUrl = DATA.videoUrl;
-
-  // ---------------- SHUFFLE (Fisher-Yates) ----------------
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
+  if (finalQuestions.length === 0) {
+    console.warn("Không có dữ liệu câu hỏi");
+    // Không return để tránh chết app, cứ để nó chạy tiếp
   }
 
-  // ================== BUILD QUESTIONS ==================
-  const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
-
-  const questions = sourceQuestions.map(q => {
-    const correctIndex = q.answer;
-    let opts = q.options.map((t, i) => ({
-      text: t,
-      correct: i === correctIndex
-    }));
-    if (isShuffleActive) shuffle(opts);
-    return { ...q, options: opts };
-  });
-
-  if (isShuffleActive) shuffle(questions);
-
-  // Lưu vào biến toàn cục để tương thích các phần khác
-  window.questions = questions;
-
-  let cur = 0;
-  const user = new Array(questions.length).fill(null);
-
-  // (Các phần Furigana giữ nguyên...)
-  function convertFurigana(text) {
-    if (!text) return text;
-    return text.replace(
-      /([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g,
-      (m, kanji, kana) => `<ruby>${kanji}<rt>${kana}</rt></ruby>`
-    );
-  }
-
-  function applyFuriganaToPage() {
-    document.querySelectorAll(".q-text, .opt, .answer-line, .explain-box").forEach(el => {
-      el.innerHTML = convertFurigana(el.innerHTML);
-    });
-  }
-
+  const sourceQuestions = finalQuestions;
   // ================== RENDER (SỬA ĐOẠN NÀY ĐỂ HIỆN VIDEO) ================
   function render() {
     if (!questions.length) {
