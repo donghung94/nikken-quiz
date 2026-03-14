@@ -380,4 +380,5 @@ window.QUESTION_SETS["1"] = {
   explain: "Đó là **水平(すいへい)積(つ)み上(あ)げ方式(ほうしき)** (Phương pháp xếp chồng ngang rồi nâng lên). Trong bối cảnh này, thuật ngữ này được sử dụng để chỉ phương pháp nâng cần cẩu tháp lên từng tầng (**1階(いっかい)ずつ**) theo chiều cao của công trình.",
   tip: "💡 Nhớ: **タワークレーン (Cần cẩu tháp) + 1階　(いっかい)ずつ = 水平積　(すいへいづみ)　み上　(あ)げ方式　(あげほうしき) (Phương pháp nâng lên theo chiều ngang)."
 }
+    },
 ];
