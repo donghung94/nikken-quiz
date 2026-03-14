@@ -1,247 +1,201 @@
-(function () {
-  const $ = (sel) => document.querySelector(sel);
-  const params = new URLSearchParams(location.search);
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz APP luyện thi toukuteigino2 xây dựng cấp tốc</title>
+  <link rel="icon" href="icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="firebase.js"></script>
+</head>
 
-  const setId = params.get("set");
-  const practiceId = params.get("practice");
-  let DATA = [];
+<body class="mono">
+<script type="module">
+    import { auth, db } from "./firebase.js"; 
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // ================== HỖ TRỢ g1_ & g2_ ==================
-  let normalizedPracticeId = practiceId;
-  if (practiceId && (practiceId.startsWith("g1_") || practiceId.startsWith("g2_"))) {
-    normalizedPracticeId = practiceId;
-  }
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            location.href = "login.html";
+        } else {
+            try {
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
 
-  // ================== LẤY DỮ LIỆU ==================
-  if (normalizedPracticeId && window.PRACTICE_SETS && window.PRACTICE_SETS[normalizedPracticeId]) {
-    DATA = JSON.parse(JSON.stringify(window.PRACTICE_SETS[normalizedPracticeId]));
-    window.questions = window.PRACTICE_SETS[normalizedPracticeId];
-  }
-  else if (setId && window.QUESTION_SETS && window.QUESTION_SETS[setId]) {
-    DATA = JSON.parse(JSON.stringify(window.QUESTION_SETS[setId]));
-    window.questions = window.QUESTION_SETS[setId];
-  }
-  else {
-    DATA = [];
-    window.questions = [];
-  }
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    const isAdmin = data.role === 'admin'; 
+                    const isPremium = data.isPremium === true || isAdmin; 
+                    
+                    const currentDeviceId = localStorage.getItem('my_device_id');
+                    const devices = data.devices || {};
 
-  const quizEl = $("#quiz");
-  const resEl = $("#result");
-  const submitBtn = $("#submitBtn");
-  const redoBtn = $("#redoWrong");
-  const timerEl = $("#timer");
+                    if (!isAdmin && data.device_count >= 1 && !devices[currentDeviceId]) {
+                        alert("🚫 Thiết bị không hợp lệ. Bạn sẽ bị đăng xuất.");
+                        await signOut(auth);
+                        location.href = "login.html";
+                        return;
+                    }
 
-  // ================== XỬ LÝ HIỂN THỊ VIDEO ==================
-  const vContainer = $("#videoContainer");
-  const vIframe = $("#examVideo");
-  let videoUrl = DATA.videoUrl || null; 
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const setNum = urlParams.get('set');
+                    const practice = urlParams.get('practice');
+                    const allowedSets = ['1', '2', '3']; 
 
-  // Chỉ gán link video 1 lần lúc đầu nếu có
-  if (vIframe && videoUrl) {
-    vIframe.src = videoUrl;
-  }
+                    if (!isPremium) {
+                        if ((setNum && !allowedSets.includes(setNum)) || practice || setNum === 'randomExam') {
+                            const modal = document.getElementById('premium-modal');
+                            if (modal) {
+                                modal.style.display = 'flex';
+                                document.querySelector('main.container').style.display = 'none';
+                                document.getElementById('timer').innerText = "🔒 Khóa";
+                            }
+                            return;
+                        }
+                    }
 
-  // ---------------- TIMER ----------------
-  let timeLeft = 3600;
-  const tick = () => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    if (timeLeft <= 0) { submitQuiz(); return; }
-    timeLeft--;
-    setTimeout(tick, 1000);
-  };
-  tick();
+                    const nameDisplay = document.getElementById('user-display-name');
+                    if (nameDisplay) {
+                        nameDisplay.innerText = isAdmin ? `(AD) ${data.name}` : (data.name || "Học viên");
+                    }
 
-  // ---------------- SHUFFLE (Fisher-Yates) ----------------
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  // ================== KIỂM TRA CHẾ ĐỘ ĐẢO CÂU ==================
-  const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
-  const sourceQuestions = DATA.questions || DATA;
-
-  // ================== BUILD QUESTIONS ==================
-  const questions = sourceQuestions.map(q => {
-    const correctIndex = q.answer;
-
-    let opts = q.options.map((t, i) => ({
-      text: t,
-      correct: i === correctIndex
-    }));
-
-    if (isShuffleActive) shuffle(opts);
-    return { ...q, options: opts };
-  });
-
-  if (isShuffleActive) shuffle(questions);
-
-  let cur = 0;
-  const user = new Array(questions.length).fill(null);
-
-  // ================== FURIGANA ==================
-  function convertFurigana(text) {
-    if (!text) return text;
-    return text.replace(
-      /([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g,
-      (m, kanji, kana) => `<ruby>${kanji}<rt>${kana}</rt></ruby>`
-    );
-  }
-
-  function applyFuriganaToPage() {
-    document.querySelectorAll(".q-text, .opt, .answer-line, .explain-box").forEach(el => {
-      el.innerHTML = convertFurigana(el.innerHTML);
-    });
-  }
-
-  // ================== RENDER ================
-  function render() {
-    if (!questions.length) {
-      quizEl.innerHTML = "<p>Không có dữ liệu câu hỏi.</p>";
-      return;
-    }
-
-    // --- LOGIC ẨN/HIỆN VIDEO THEO CÂU HỎI ---
-    if (vContainer) {
-      if (cur === 0 && videoUrl) {
-        vContainer.style.display = "block"; // Chỉ hiện ở câu đầu tiên
-      } else {
-        vContainer.style.display = "none";  // Ẩn đi ở các câu sau
-      }
-    }
-
-    const q = questions[cur];
-    const hasAnswered = user[cur] !== null;
-
-    const html = `
-      <div class="q-head"><div class="q-index">Câu ${cur+1}/${questions.length}</div></div>
-      <div class="q-text">${q.q}</div>
-      ${q.hira ? `<div class="hira">${q.hira}</div>` : ""}
-      ${q.img ? `<div class="q-img"><img src="${q.img}" style="max-width:100%;border:1px solid #ccc;border-radius:8px;margin:8px 0;"></div>`: ""}
-      <div class="options">
-        ${q.options.map((op,i)=>{
-          let cls="opt", mark="";
-          if(hasAnswered){
-            if(op.correct){ cls+=" correct"; mark="✅"; }
-            else if(user[cur]===i){ cls+=" incorrect"; mark="❌"; }
-          }
-          return `<div class="${cls}" data-idx="${i}">${op.text} <span class="mark">${mark}</span></div>`;
-        }).join("")}
-      </div>
-      <div class="nav">
-        <button class="btn" id="backBtn" ${cur===0?"disabled":""}>⬅️ Quay lại</button>
-        <button class="btn" id="explainBtn">📘 Giải thích</button>
-        <button class="btn" id="nextBtn" ${cur===questions.length-1?"disabled":""}>➡️ Tiếp theo</button>
-      </div>
-      <div id="explainBox" class="explain-box" style="display:${hasAnswered?"block":"none"};">
-        ${q.vi ? `<div><b>Dịch:</b> ${q.vi}</div>` : ""}
-        ${q.explain ? `<div><b>📘 Giải thích:</b> ${q.explain}</div>` : ""}
-        ${q.tip ? `<div class="tip">${q.tip}</div>` : ""}
-      </div>
-    `;
-
-    quizEl.innerHTML = html;
-    applyFuriganaToPage();
-
-    quizEl.querySelectorAll(".opt").forEach(el => {
-      el.addEventListener("click", () => {
-        if (user[cur] !== null) return;
-        const idx = parseInt(el.dataset.idx);
-        user[cur] = idx;
-        quizEl.querySelectorAll(".opt").forEach((optEl, j) => {
-          const mark = optEl.querySelector(".mark");
-          if (questions[cur].options[j].correct) {
-            optEl.classList.add("correct");
-            mark.textContent = "✅";
-          } else if (j === idx) {
-            optEl.classList.add("incorrect");
-            mark.textContent = "❌";
-          }
-          optEl.style.pointerEvents = "none";
-        });
-        $("#explainBox").style.display = "block";
-        applyFuriganaToPage();
-      });
-    });
-
-    $("#backBtn").onclick = () => { if (cur > 0) { cur--; render(); } };
-    
-    // Nút Tiếp theo: Xử lý ngắt video khi chuyển từ câu 1 sang câu 2
-    $("#nextBtn").onclick = () => { 
-      if (user[cur] !== null && cur < questions.length - 1) { 
-        if (cur === 0 && vIframe) {
-            // Thủ thuật: load lại iframe để ép dừng video YouTube đang phát
-            let currentSrc = vIframe.src;
-            vIframe.src = currentSrc; 
+                    initShuffleLogic();
+                }
+            } catch (error) {
+                console.error("Lỗi xác thực:", error);
+            }
         }
-        cur++; 
-        render(); 
-      } 
-    };
+    });
 
-    $("#explainBtn").onclick = () => {
-      const box = $("#explainBox");
-      box.style.display = (box.style.display === "none") ? "block" : "none";
-      applyFuriganaToPage();
-    };
-  }
+    function initShuffleLogic() {
+        const shuffleToggle = document.getElementById('shuffle-toggle-exam');
+        if (!shuffleToggle) return;
 
-  render();
-  submitBtn.onclick = submitQuiz;
+        const isShuffle = localStorage.getItem('user_shuffle') === 'true';
+        shuffleToggle.checked = isShuffle;
 
-  function submitQuiz() {
-    let correct = 0;
-    const wrongs = [];
-    const html = questions.map((q,i)=>{
-      const picked = user[i];
-      const right = q.options.find(o=>o.correct);
-      const isRight = picked!==null && q.options[picked] && q.options[picked].correct;
-      if(isRight){ correct++; return ""; }
-      wrongs.push(q);
-      return `
-        <div class="result-item">
-          <div class="q-text">${q.q}</div>
-          ${q.hira?`<div class="hira">${q.hira}</div>`:""}
-          ${q.img?`<div class="q-img"><img src="${q.img}" style="max-width:100%;border:1px solid #ccc;border-radius:8px;margin:8px 0;"></div>`:""}
-          <div class="answer-line">❌ <b>Bạn chọn:</b> ${picked!==null?q.options[picked].text:"(chưa chọn)"}</div>
-          <div class="answer-line">✅ <b>Đáp án đúng:</b> ${right.text}</div>
-          ${q.vi?`<div><b>Dịch:</b> ${q.vi}</div>`:""}
-          ${q.explain?`<div class="explain-box"><b>📘 Giải thích:</b> ${q.explain}</div>`:""}
-          ${q.tip?`<div class="tip">${q.tip}</div>`:""}
+        shuffleToggle.onchange = () => {
+            localStorage.setItem('user_shuffle', shuffleToggle.checked);
+            const status = shuffleToggle.checked ? "Bật" : "Tắt";
+            if(confirm(`Hệ thống sẽ tải lại để ${status} chế độ đảo câu. Bạn đồng ý chứ?`)) {
+                location.reload();
+            } else {
+                shuffleToggle.checked = !shuffleToggle.checked;
+            }
+        };
+    }
+</script>
+
+ <header class="header">
+  <div class="header-top">
+    <div class="brand small">
+      <img src="icon-192.png" alt="H" class="logo">
+      <div class="titles">
+        <div class="brand-name"> Quiz APP</div>
+        <div class="subtitle">Chào: <span id="user-display-name">...</span></div>
+      </div>
+    </div>
+    <a href="index.html" class="btn ghost btn-home">🏠 Trang chủ</a>
+  </div>
+  
+  <div class="header-bottom" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+    <div class="shuffle-wrapper">
+        <span class="shuffle-label">🔄 Đảo câu</span>
+        <label class="switch-small">
+            <input type="checkbox" id="shuffle-toggle-exam">
+            <span class="slider-small round"></span>
+        </label>
+    </div>
+    
+    <div class="exam-status" style="display: flex; align-items: center; gap: 10px;">
+      <span id="timer" class="timer" style="font-size: 20px; font-weight: bold; color: #1e40af;">60:00</span>
+      <button id="submitBtn" class="btn" style="background: #ee0000; color: white;">Nộp bài</button>
+    </div>
+  </div>
+</header>
+      
+  <main class="container">
+    <div id="videoContainer" style="display:none; margin-bottom: 20px;">
+        <div style="background: #fff; padding: 10px; border-radius: 12px; border: 2px solid #1e40af;">
+            <iframe id="examVideo" width="100%" height="250" src="" frameborder="0" allowfullscreen style="border-radius: 8px;"></iframe>
         </div>
-      `;
-    }).join("");
+    </div>
 
-    quizEl.style.display="none";
+    <div id="quiz" class="card"></div>
+    <div id="result" class="card" style="display:none"></div>
+  </main>
+
+  <button id="redoWrong" class="floating">Làm lại những câu sai</button>
+
+  <footer class="footer">© 2025 • Quiz APP CENTER</footer>
+
+  <script src="questions.js"></script>
+  <script src="questions2.js"></script>
+  <script src="questions3.js"></script>
+  <script src="questions4.js"></script>
+  <script src="questions5.js"></script>
+  <script src="questions6.js"></script>
+  <script src="questions7.js"></script>
+  <script src="questions8.js"></script>
+  <script src="questions9.js"></script>
+  <script src="practice1_g1.js"></script>
+  <script src="practice2_g1.js"></script>
+  <script src="practice3_g1.js"></script>
+  <script src="practice4_g1.js"></script>
+  <script src="practice1.js"></script>
+  <script src="practice2.js"></script>
+  <script src="practice3.js"></script>
+  <script src="practice4.js"></script>
+  <script src="exam_random.js"></script>
+  <script src="practice_random_g1.js"></script>
+  <script src="practice_random_g2.js"></script>
+
+  <script src="exam.js"></script>
+
+  <style>
+    .hud { display: flex; align-items: center; gap: 10px; }
+    .btn.ghost { background: #f3f4f6; color: #1e40af; font-weight: bold; border: 1px solid #1e40af; }
+    .btn.ghost:hover { background: #e0e7ff; }
+
+    .shuffle-wrapper {
+        display: flex; align-items: center; gap: 5px; background: rgba(30, 64, 175, 0.1); padding: 4px 8px; border-radius: 20px;
+    }
+    .shuffle-label { font-size: 11px; font-weight: bold; color: #1e40af; }
+    .switch-small { position: relative; display: inline-block; width: 34px; height: 18px; }
+    .switch-small input { opacity: 0; width: 0; height: 0; }
+    .slider-small {
+        position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 18px;
+    }
+    .slider-small:before {
+        position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider-small { background-color: #1e40af; }
+    input:checked + .slider-small:before { transform: translateX(16px); }
     
-    // Tắt và ẩn video khi nộp bài
-    if (vContainer) vContainer.style.display = "none"; 
-    if (vIframe) vIframe.src = vIframe.src;
-    
-    resEl.style.display="block";
-    resEl.innerHTML = `
-      <div class="result-title">✅ Bạn làm đúng ${correct}/${questions.length}</div>
-      ${wrongs.length?`<div><b>Bạn sai các câu sau:</b></div>${html}`:`<div>🎉 Bạn đúng hết!</div>`}
-    `;
-    applyFuriganaToPage();
-    redoBtn.style.display = wrongs.length ? "block" : "none";
-    redoBtn.onclick = () => {
-      shuffle(wrongs);
-      questions.length = 0;
-      wrongs.forEach(q=>questions.push(q));
-      cur = 0;
-      user.length = questions.length;
-      user.fill(null);
-      quizEl.style.display="block";
-      resEl.style.display="none";
-      redoBtn.style.display="none";
-      render();
-    };
-  }
-})();
+    .header {
+        display: flex !important; flex-direction: column !important; padding: 10px 15px !important; background: #fff; border-bottom: 2px solid #7fb069; align-items: stretch !important; 
+    }
+    .header-top, .header-bottom {
+        display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100% !important;
+    }
+    .brand, .btn-home, .shuffle-wrapper, .exam-status { margin: 0 !important; }
+    .exam-status { display: flex; align-items: center; gap: 10px; }
+    .btn-red { background: #ee0000 !important; color: white !important; font-weight: bold; border: none; padding: 6px 15px; border-radius: 8px; }
+    .timer { font-size: 20px; font-weight: bold; color: #1e40af; }
+  </style>
+
+  <div id="premium-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:15px; text-align:center;">
+        <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+        <h2 style="color:#1e40af;">Mở Khóa Toàn Bộ</h2>
+        <p style="color:#64748b;">Nâng cấp Premium để học toàn bộ đề thi.</p>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <a href="https://zalo.me/09xxxxxxxx" target="_blank" style="background:#0068ff; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">💬 Zalo Admin</a>
+            <button onclick="location.href='index.html'" style="background:none; border:none; color:#94a3b8; cursor:pointer;">Quay lại Trang chủ</button>
+        </div>
+    </div>
+  </div>
+</body>
+</html>
