@@ -35,15 +35,11 @@
   // ================== XỬ LÝ HIỂN THỊ VIDEO ==================
   const vContainer = $("#videoContainer");
   const vIframe = $("#examVideo");
-  let videoUrl = DATA.videoUrl || null; // Lấy link video nếu có
+  let videoUrl = DATA.videoUrl || null; 
 
-  if (vContainer && vIframe) {
-    if (videoUrl) {
-      vContainer.style.display = "block"; // Hiện khung video
-      vIframe.src = videoUrl;
-    } else {
-      vContainer.style.display = "none";  // Ẩn nếu không có video
-    }
+  // Chỉ gán link video 1 lần lúc đầu nếu có
+  if (vIframe && videoUrl) {
+    vIframe.src = videoUrl;
   }
 
   // ---------------- TIMER ----------------
@@ -67,7 +63,7 @@
     return arr;
   }
 
-  // ================== KIỂM TRA CHẾ ĐỘ ĐẢO CÂU (MỚI) ==================
+  // ================== KIỂM TRA CHẾ ĐỘ ĐẢO CÂU ==================
   const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
   const sourceQuestions = DATA.questions || DATA;
 
@@ -109,6 +105,15 @@
     if (!questions.length) {
       quizEl.innerHTML = "<p>Không có dữ liệu câu hỏi.</p>";
       return;
+    }
+
+    // --- LOGIC ẨN/HIỆN VIDEO THEO CÂU HỎI ---
+    if (vContainer) {
+      if (cur === 0 && videoUrl) {
+        vContainer.style.display = "block"; // Chỉ hiện ở câu đầu tiên
+      } else {
+        vContainer.style.display = "none";  // Ẩn đi ở các câu sau
+      }
     }
 
     const q = questions[cur];
@@ -166,7 +171,20 @@
     });
 
     $("#backBtn").onclick = () => { if (cur > 0) { cur--; render(); } };
-    $("#nextBtn").onclick = () => { if (user[cur] !== null && cur < questions.length - 1) { cur++; render(); } };
+    
+    // Nút Tiếp theo: Xử lý ngắt video khi chuyển từ câu 1 sang câu 2
+    $("#nextBtn").onclick = () => { 
+      if (user[cur] !== null && cur < questions.length - 1) { 
+        if (cur === 0 && vIframe) {
+            // Thủ thuật: load lại iframe để ép dừng video YouTube đang phát
+            let currentSrc = vIframe.src;
+            vIframe.src = currentSrc; 
+        }
+        cur++; 
+        render(); 
+      } 
+    };
+
     $("#explainBtn").onclick = () => {
       const box = $("#explainBox");
       box.style.display = (box.style.display === "none") ? "block" : "none";
@@ -201,7 +219,10 @@
     }).join("");
 
     quizEl.style.display="none";
-    if (vContainer) vContainer.style.display = "none"; // Ẩn video khi xem điểm
+    
+    // Tắt và ẩn video khi nộp bài
+    if (vContainer) vContainer.style.display = "none"; 
+    if (vIframe) vIframe.src = vIframe.src;
     
     resEl.style.display="block";
     resEl.innerHTML = `
@@ -220,7 +241,6 @@
       quizEl.style.display="block";
       resEl.style.display="none";
       redoBtn.style.display="none";
-      if(vContainer && videoUrl) vContainer.style.display="block"; // Hiện lại video nếu làm lại
       render();
     };
   }
