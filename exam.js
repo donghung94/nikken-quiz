@@ -4,45 +4,28 @@
 
   const setId = params.get("set");
   const practiceId = params.get("practice");
-  let DATA = [];
+  
+  // ================== LẤY DỮ LIỆU & CHUẨN HÓA ==================
+  let rawData = null;
+  let normalizedId = practiceId || setId;
 
-  // ================== HỖ TRỢ g1_ & g2_ ==================
-  let normalizedPracticeId = practiceId;
-  if (practiceId && (practiceId.startsWith("g1_") || practiceId.startsWith("g2_"))) {
-    normalizedPracticeId = practiceId;
+  if (practiceId && window.PRACTICE_SETS) {
+    rawData = window.PRACTICE_SETS[practiceId];
+  } else if (setId && window.QUESTION_SETS) {
+    rawData = window.QUESTION_SETS[setId];
   }
 
-  // ================== LẤY DỮ LIỆU ==================
-  if (normalizedPracticeId && window.PRACTICE_SETS && window.PRACTICE_SETS[normalizedPracticeId]) {
-    DATA = JSON.parse(JSON.stringify(window.PRACTICE_SETS[normalizedPracticeId]));
-    window.questions = window.PRACTICE_SETS[normalizedPracticeId];
-  }
-  else if (setId && window.QUESTION_SETS && window.QUESTION_SETS[setId]) {
-    DATA = JSON.parse(JSON.stringify(window.QUESTION_SETS[setId]));
-    window.questions = window.QUESTION_SETS[setId];
-  }
-  else {
-    DATA = [];
-    window.questions = [];
+  // Khởi tạo DATA chuẩn để chứa videoUrl và questions
+  let DATA = { questions: [], videoUrl: null };
+
+  if (Array.isArray(rawData)) {
+    DATA.questions = rawData; // Nếu là mảng cũ
+  } else if (rawData && rawData.questions) {
+    DATA = rawData; // Nếu là object mới có videoUrl
   }
 
-  const quizEl = $("#quiz");
-  const resEl = $("#result");
-  const submitBtn = $("#submitBtn");
-  const redoBtn = $("#redoWrong");
-  const timerEl = $("#timer");
-
-  // ---------------- TIMER ----------------
-  let timeLeft = 3600;
-  const tick = () => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    if (timeLeft <= 0) { submitQuiz(); return; }
-    timeLeft--;
-    setTimeout(tick, 1000);
-  };
-  tick();
+  const sourceQuestions = DATA.questions || [];
+  const videoUrl = DATA.videoUrl;
 
   // ---------------- SHUFFLE (Fisher-Yates) ----------------
   function shuffle(arr) {
@@ -53,20 +36,99 @@
     return arr;
   }
 
-  // ================== KIỂM TRA CHẾ ĐỘ ĐẢO CÂU (MỚI) ==================
-  // Lấy trạng thái từ nút gạt ở Header
-  const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
-  const sourceQuestions = DATA.questions || DATA;
-
   // ================== BUILD QUESTIONS ==================
+  const isShuffleActive = localStorage.getItem('user_shuffle') === 'true';
+
   const questions = sourceQuestions.map(q => {
     const correctIndex = q.answer;
-
     let opts = q.options.map((t, i) => ({
       text: t,
       correct: i === correctIndex
     }));
+    if (isShuffleActive) shuffle(opts);
+    return { ...q, options: opts };
+  });
 
+  if (isShuffleActive) shuffle(questions);
+
+  // Lưu vào biến toàn cục để tương thích các phần khác
+  window.questions = questions;
+
+  let cur = 0;
+  const user = new Array(questions.length).fill(null);
+
+  // (Các phần Furigana giữ nguyên...)
+  function convertFurigana(text) {
+    if (!text) return text;
+    return text.replace(
+      /([一-龯々〆ヶ]+)\s*[（(]([^）)]+)[）)]/g,
+      (m, kanji, kana) => `<ruby>${kanji}<rt>${kana}</rt></ruby>`
+    );
+  }
+
+  function applyFuriganaToPage() {
+    document.querySelectorAll(".q-text, .opt, .answer-line, .explain-box").forEach(el => {
+      el.innerHTML = convertFurigana(el.innerHTML);
+    });
+  }
+
+  // ================== RENDER (SỬA ĐOẠN NÀY ĐỂ HIỆN VIDEO) ================
+  function render() {
+    if (!questions.length) {
+      $("#quiz").innerHTML = "<p>Không có dữ liệu câu hỏi.</p>";
+      return;
+    }
+
+    // --- XỬ LÝ VIDEO ---
+    const vContainer = document.getElementById('videoContainer');
+    const vIframe = document.getElementById('examVideo');
+
+    if (vContainer && vIframe) {
+      if (cur === 0 && videoUrl) { // Hiện ở câu 1 nếu có link video
+        vContainer.style.display = 'block';
+        if (vIframe.src !== videoUrl) vIframe.src = videoUrl;
+      } else {
+        vContainer.style.display = 'none';
+        vIframe.src = ""; // Dừng video khi sang câu khác
+      }
+    }
+
+    const q = questions[cur];
+    const hasAnswered = user[cur] !== null;
+
+    // (Phần tạo HTML bên dưới giữ nguyên như cũ của bạn...)
+    const quizEl = $("#quiz");
+    const html = `
+      <div class="q-head"><div class="q-index">Câu ${cur+1}/${questions.length}</div></div>
+      <div class="q-text">${q.q}</div>
+      ${q.hira ? `<div class="hira">${q.hira}</div>` : ""}
+      ${q.img ? `<div class="q-img"><img src="${q.img}" style="max-width:100%;border:1px solid #ccc;border-radius:8px;margin:8px 0;"></div>`: ""}
+      <div class="options">
+        ${q.options.map((op,i)=>{
+          let cls="opt", mark="";
+          if(hasAnswered){
+            if(op.correct){ cls+=" correct"; mark="✅"; }
+            else if(user[cur]===i){ cls+=" incorrect"; mark="❌"; }
+          }
+          return `<div class="${cls}" data-idx="${i}">${op.text} <span class="mark">${mark}</span></div>`;
+        }).join("")}
+      </div>
+      <div class="nav">
+        <button class="btn" id="backBtn" ${cur===0?"disabled":""}>⬅️ Quay lại</button>
+        <button class="btn" id="explainBtn">📘 Giải thích</button>
+        <button class="btn" id="nextBtn" ${cur===questions.length-1?"disabled":""}>➡️ Tiếp theo</button>
+      </div>
+      <div id="explainBox" class="explain-box" style="display:${hasAnswered?"block":"none"};">
+        ${q.vi ? `<div><b>Dịch:</b> ${q.vi}</div>` : ""}
+        ${q.explain ? `<div><b>📘 Giải thích:</b> ${q.explain}</div>` : ""}
+        ${q.tip ? `<div class="tip">${q.tip}</div>` : ""}
+      </div>
+    `;
+
+    quizEl.innerHTML = html;
+    applyFuriganaToPage();
+
+    // ... (Các phần xử lý click và submit bên dưới giữ nguyên)
     // Chỉ đảo đáp án nếu nút gạt đang BẬT
     if (isShuffleActive) shuffle(opts);
 
