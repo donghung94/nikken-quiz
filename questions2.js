@@ -1,7 +1,7 @@
 window.QUESTION_SETS = window.QUESTION_SETS || {};
 
 // CHỈ bộ nào muốn có video thì làm theo mẫu này:
-window.QUESTION_SETS["1"] = {
+window.QUESTION_SETS["2"] = {
   "videoUrl": "https://drive.google.com/file/d/1gQB00gtLkUk5GIOSnvWoLycPlQbnXALB/preview", // Link video Youtube
   "questions": [
     {
