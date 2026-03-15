@@ -2,7 +2,7 @@ window.QUESTION_SETS = window.QUESTION_SETS || {};
 
 // CHỈ bộ nào muốn có video thì làm theo mẫu này:
 window.QUESTION_SETS["4"] = {
-  "videoUrl": "https://drive.google.com/file/d/1CiSNq9vfOZN2kAOLQ-ibfCdBgzL2XNja/preview", // Link video Youtube
+  "videoUrl": "https://drive.google.com/file/d/1pbNU--shLC_jmu6MqDFKfZo18Q2S4abK/preview", // Link video Youtube
   "questions": [
     {
   q: "問91　板金（ばんきん）工事（こうじ）に適切（てきせつ）がある工事（こうじ）を選（えら）べ。【学科55】",
