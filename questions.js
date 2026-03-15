@@ -2,7 +2,7 @@ window.QUESTION_SETS = window.QUESTION_SETS || {};
 
 // CHỈ bộ nào muốn có video thì làm theo mẫu này:
 window.QUESTION_SETS["1"] = {
-  "videoUrl": "https://drive.google.com/file/d/1pl9RlHkuC-D0YzX4zTw41aE-9_p6ZaJ1/preview", // Link video Youtube
+  "videoUrl": "https://drive.google.com/file/d/14zuUu2HYa0Rr6okgUrSV7JQgaY2mZFmA/preview", // Link video Youtube
   "questions": [
     {
   id: 1,
