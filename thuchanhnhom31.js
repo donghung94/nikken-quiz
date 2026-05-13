@@ -405,5 +405,163 @@
     "explain": "Bàn chải thép (Wire brush) với các sợi cước bằng kim loại cứng cáp là công cụ lý tưởng để chải sạch các mạt cưa, mạt kim loại bám chặt trong các khe rãnh của giũa.\n\nTừ vựng:\n目(め): Rãnh (của giũa)\n切(き)りくず: Mạt vụn\n落(お)とす: Loại bỏ\n道具(どうぐ): Dụng cụ",
     "tip": "💡 Mẹo: Thấy やすり (Giũa) và 切(き)りくずを落(お)とす (Loại bỏ mạt vụn) thì chọn ワイヤーブラシ (Bàn chải thép)."
   },
+  {
+    "id": "35",
+    "q": "コンクリートやモルタルを作(つく)るための材料(ざいりょう)を入(い)れて、練(ね)り混(ま)ぜるための丈夫(じょうぶ)な箱(はこ)を何(なん)というか。",
+    "options": [
+      "トロ箱(ばこ)",
+      "ふるい",
+      "モルタルミキサ",
+      "かくはん機(き)"
+    ],
+    "answer": 0,
+    "vi": "Chiếc hộp chắc chắn dùng để chứa vật liệu và trộn bê tông hoặc vữa được gọi là gì?",
+    "explain": "Chiếc hộp dùng để trộn bằng tay các loại vật liệu như bê tông hay vữa được gọi là khay trộn vữa トロ箱(ばこ) (Khay trộn vữa).\n\nTừ vựng:\n作(つく)る: Tạo ra / Làm ra\n材料(ざいりょう): Vật liệu\n入(い)れて: Cho vào\n練(ね)り混(ま)ぜる: Nhào trộn\n丈夫(じょうぶ): Chắc chắn\n箱(はこ): Hộp / Thùng\n何(なん): Cái gì\n機(き): Máy",
+    "tip": "💡 Ghi nhớ: Thấy 丈夫(じょうぶ)な箱(はこ) (Hộp chắc chắn) dùng để trộn vữa thì chọn トロ箱(ばこ) (Khay trộn vữa)."
+  },
+  {
+    "id": "36",
+    "q": "高所(こうしょ)からの人体(じんたい)や資材(しざい)の落下(らっか)を回避(かいひ)するためのネットは何(なん)というか。",
+    "options": [
+      "飛散防止(ひさんぼうし)ネット",
+      "垂直養生(すいちょくようじょう)ネット",
+      "水平養生(すいへいようじょう)ネット",
+      "防止(ぼうし)ネット"
+    ],
+    "answer": 2,
+    "vi": "Lưới dùng để tránh người hoặc vật tư rơi xuống từ trên cao gọi là gì?",
+    "explain": "Để hứng và ngăn chặn người hoặc vật liệu rơi từ trên cao xuống, người ta phải giăng lưới bảo vệ theo phương ngang 水平養生(すいへいようじょう)ネット (Lưới bảo vệ phương ngang).\n\nTừ vựng:\n高所(こうしょ): Nơi cao\n人体(じんたい): Cơ thể người\n資材(しざい): Vật tư / Vật liệu\n落下(らっか): Rơi xuống\n回避(かいひ): Tránh / Tránh né\n何(なん): Cái gì\n飛散防止(ひさんぼうし): Chống bay vương vãi\n垂直養生(すいちょくようじょう): Bảo vệ phương thẳng đứng\n水平養生(すいへいようじょう): Bảo vệ phương ngang\n防止(ぼうし): Phòng chống",
+    "tip": "💡 Ghi nhớ: Thấy 落下(らっか)を回避(かいひ) (Tránh rơi xuống) thì chọn 水平養生(すいへいようじょう)ネット (Lưới bảo vệ phương ngang)."
+  },
+  {
+    "id": "37",
+    "q": "前方(ぜんぽう)にタイヤが1つ付(つ)いていて、鉄製(てつせい)のバケットに入(い)れた物(もの)を運(はこ)ぶための道具(どうぐ)を、何(なん)というか。",
+    "options": [
+      "一輪車(いちりんしゃ)",
+      "台車(だいしゃ)",
+      "ころ",
+      "そり"
+    ],
+    "answer": 0,
+    "vi": "Dụng cụ có 1 bánh xe phía trước, dùng để vận chuyển đồ vật đựng trong thùng sắt được gọi là gì?",
+    "explain": "Xe có một bánh phía trước dùng để chở vật liệu xây dựng như đất đá hay vữa gọi là xe rùa 一輪車(いちりんしゃ) (Xe rùa).\n\nTừ vựng:\n前方(ぜんぽう): Phía trước\n付(つ)いていて: Gắn / Có trang bị\n鉄製(てつせい): Làm bằng sắt\n入(い)れた: Đã cho vào\n物(もの): Vật / Đồ vật\n運(はこ)ぶ: Vận chuyển\n道具(どうぐ): Dụng cụ\n何(なん): Cái gì\n一輪車(いちりんしゃ): Xe rùa / Xe một bánh\n台車(だいしゃ): Xe đẩy hàng",
+    "tip": "💡 Ghi nhớ: Thấy 前方(ぜんぽう)にタイヤが1つ (Có 1 bánh xe phía trước) thì chọn 一輪車(いちりんしゃ) (Xe rùa)."
+  },
+  {
+    "id": "37.5",
+    "q": "写真(しゃしん)の工具(こうぐ)は何(なん)の目的(もくてき)に使用(しよう)されますか。",
+     img: "images/375.png",
+    "options": [
+      "てこや滑車(かっしゃ)の原理(げんり)を応用(おうよう)した、重(おも)いものを上(あ)げ下(さ)げできる",
+      "はることができる",
+      "釘(くぎ)を抜(ぬ)く",
+      "引(ひ)き締(し)める"
+    ],
+    "answer": 0,
+    "vi": "Dụng cụ trong ảnh được sử dụng với mục đích gì?",
+    "explain": "Dụng cụ trong ảnh là pa lăng xích lắc tay, ứng dụng nguyên lý đòn bẩy và ròng rọc để nâng hạ vật nặng てこや滑車(かっしゃ)の原理(げんり)を応用(おうよう)した、重(おも)いものを上(あ)げ下(さ)げできる (Ứng dụng đòn bẩy và ròng rọc để nâng hạ vật nặng).\n\nTừ vựng:\n写真(しゃしん): Bức ảnh\n工具(こうぐ): Dụng cụ\n何(なん): Cái gì\n目的(もくてき): Mục đích\n使用(しよう): Sử dụng\n滑車(かっしゃ): Ròng rọc\n原理(げんり): Nguyên lý\n応用(おうよう): Ứng dụng\n重(おも)い: Nặng\n上(あ)げ下(さ)げ: Nâng hạ\n釘(くぎ): Đinh\n抜(ぬ)く: Nhổ ra\n引(ひ)き締(し)める: Siết chặt",
+    "tip": "💡 Ghi nhớ: Thấy pa lăng xích có dây xích và móc câu thì chọn đáp án có chữ 重(おも)いものを上(あ)げ下(さ)げ (Nâng hạ vật nặng)."
+  },
+  {
+    "id": "38",
+    "q": "作業用(さぎょうよう)バスケットを高(たか)さ2M以上(いじょう)に昇降(しょうこう)できる装置(そうち)を備(そな)えた車両(しゃりょう)を選(えら)べ。『133』",
+    "options": [
+      "ローリングタワー",
+      "脚立(きゃたつ)",
+      "高所作業車(こうしょさぎょうしゃ)",
+      "可搬式作業台(かはんしきさぎょうだい)"
+    ],
+    "answer": 2,
+    "vi": "Hãy chọn loại xe được trang bị thiết bị có thể nâng hạ lồng thao tác (giỏ làm việc) lên độ cao từ 2 mét trở lên.",
+    "explain": "Loại xe có trang bị thiết bị nâng hạ lồng thao tác để đưa người lên cao làm việc được gọi là xe làm việc trên cao 高所作業車(こうしょさぎょうしゃ).\n\nTừ vựng:\n作業用(さぎょうよう): Dùng cho công việc\n高(たか)さ: Độ cao\n以上(いじょう): Trở lên\n昇降(しょうこう): Nâng hạ\n装置(そうち): Thiết bị\n備(そな)えた: Được trang bị\n車両(しゃりょう): Phương tiện / Xe cộ\n選(えら)べ: Hãy chọn\n脚立(きゃたつ): Thang chữ A\n高所作業車(こうしょさぎょうしゃ): Xe làm việc trên cao\n可搬式作業台(かはんしきさぎょうだい): Bục làm việc di động",
+    "tip": "Ghi nhớ: Thấy 作業用(さぎょうよう)バスケット (Giỏ làm việc) và 車両(しゃりょう) (Xe cộ) thì chọn 高所作業車(こうしょさぎょうしゃ) (Xe làm việc trên cao)."
+  },
+  
+  {
+    "id": "40",
+    "q": "“受注一品生産(じゅちゅういっぴんせいさん)”とは、どのような生産方式(せいさんほうしき)ですか？正(ただ)しいものを一(ひと)つ選(えら)んでください 『135』",
+    "options": [
+      "同(おな)じ設計(せっけい)のものを大量生産(たいりょうせいさん)すること",
+      "顧客(こきゃく)の要望(ようぼう)に合(あ)わせて設計(せっけい)し、一(ひと)つだけ製造(せいぞう)すること",
+      "製品(せいひん)をリサイクルして再利用(さいりよう)すること",
+      "工場(こうじょう)で全自動(ぜんじどう)で生産(せいさん)すること"
+    ],
+    "answer": 1,
+    "vi": "“Sản xuất đơn chiếc theo đơn đặt hàng” là phương thức sản xuất như thế nào? Hãy chọn một đáp án đúng.",
+    "explain": "受注一品生産(じゅちゅういっぴんせいさん) là phương thức sản xuất chỉ làm một sản phẩm duy nhất theo đúng yêu cầu thiết kế của khách hàng.\n\nTừ vựng:\n受注(じゅちゅう): Nhận đơn hàng\n一品(いっぴん): Một sản phẩm\n生産(せいさん): Sản xuất\n方式(ほうしき): Phương thức\n正(ただ)しい: Đúng\n一(ひと)つ: Một cái\n選(えら)んで: Hãy chọn\n同(おな)じ: Giống nhau\n設計(せっけい): Thiết kế\n大量生産(たいりょうせいさん): Sản xuất hàng loạt\n顧客(こきゃく): Khách hàng\n要望(ようぼう): Yêu cầu\n合(あ)わせて: Phù hợp với\n製造(せいぞう): Chế tạo\n製品(せいひん): Sản phẩm\n再利用(さいりよう): Tái sử dụng\n工場(こうじょう): Nhà máy\n全自動(ぜんじどう): Hoàn toàn tự động",
+    "tip": "Ghi nhớ: Thấy 受注一品(じゅちゅういっぴん) (Đơn chiếc theo đơn đặt hàng) thì chọn đáp án có 顧客(こきゃく)の要望(ようぼう) (Yêu cầu của khách hàng) và 一(ひと)つだけ製造(せいぞう) (Chỉ sản xuất một cái)."
+  },
+  {
+    "id": "41",
+    "q": "工事現場(こうじげんば)における「工程管理(こうていかんり)」について説明(せつめい)しているのは、次(つぎ)のうちどれか。『137』",
+    "options": [
+      "発注者(はっちゅうしゃ)が要求(ようきゅう)する品質(ひんしつ)を十分(じゅうぶん)に満(み)たす建設物(けんせつぶつ)を作(つく)るための管理(かんり)",
+      "工事(こうじ)による騒音(そうおん)や振動(しんどう)など環境(かんきょう)に与(あた)える影響(えいきょう)を最小限(さいしょうげん)にする管理(かんり)",
+      "実施工程(じっしこうてい)に遅(おく)れが生(しょう)じないように工期内完成(こうきないかんせい)を目指(めざ)す管理(かんり)",
+      "事故防止対策(じこぼうしたいさく)や業務上疾病対策(ぎょうむじょうしっぺいたいさく)などの管理(かんり)"
+    ],
+    "answer": 2,
+    "vi": "Câu nào dưới đây giải thích về “Quản lý tiến độ” tại công trường xây dựng?",
+    "explain": "工程管理(こうていかんり) là quản lý quá trình thi công để công trình không bị chậm trễ và hoàn thành đúng thời hạn.\n\nTừ vựng:\n工事現場(こうじげんば): Công trường thi công\n工程管理(こうていかんり): Quản lý tiến độ\n説明(せつめい): Giải thích\n次(つぎ): Dưới đây\n発注者(はっちゅうしゃ): Chủ đầu tư\n要求(ようきゅう): Yêu cầu\n品質(ひんしつ): Chất lượng\n十分(じゅうぶん): Đầy đủ\n満(み)たす: Đáp ứng\n建設物(けんせつぶつ): Công trình xây dựng\n作(つく)る: Tạo ra\n管理(かんり): Quản lý\n工事(こうじ): Thi công\n騒音(そうおん): Tiếng ồn\n振動(しんどう): Độ rung\n環境(かんきょう): Môi trường\n与(あた)える: Gây ra\n影響(えいきょう): Ảnh hưởng\n最小限(さいしょうげん): Mức tối thiểu\n実施工程(じっしこうてい): Tiến độ thực tế\n遅(おく)れ: Sự chậm trễ\n生(しょう)じない: Không phát sinh\n工期内完成(こうきないかんせい): Hoàn thành trong thời hạn\n目指(めざ)す: Hướng tới\n事故防止対策(じこぼうしたいさく): Biện pháp phòng chống tai nạn\n業務上疾病対策(ぎょうむじょうしっぺいたいさく): Biện pháp phòng bệnh nghề nghiệp",
+    "tip": "Ghi nhớ: Thấy 工程管理(こうていかんり) (Quản lý tiến độ) thì chọn đáp án có 遅(おく)れ (Chậm trễ) và 工期内完成(こうきないかんせい) (Hoàn thành trong thời hạn)."
+  },
+  {
+    "id": "42",
+    "q": "施工管理(せこうかんり)でのQは何(なん)ですか。正(ただ)しいものを一(ひと)つ選(えら)びなさい。『137』",
+    "options": [
+      "品質管理(ひんしつかんり)",
+      "予算管理(よさんかんり)",
+      "工程管理(こうていかんり)",
+      "安全管理(あんぜんかんり)"
+    ],
+    "answer": 0,
+    "vi": "Chữ Q trong quản lý thi công là gì? Hãy chọn một đáp án đúng.",
+    "explain": "Trong tiêu chuẩn quản lý thi công (QCDSE), chữ Q là viết tắt của Quality (Chất lượng), tương ứng với 品質管理(ひんしつかんり).\n\nTừ vựng:\n施工管理(せこうかんり): Quản lý thi công\n何(なん): Cái gì\n正(ただ)しい: Đúng\n一(ひと)つ: Một cái\n選(えら)びなさい: Hãy chọn\n品質管理(ひんしつかんり): Quản lý chất lượng\n予算管理(よさんかんり): Quản lý ngân sách\n工程管理(こうていかんり): Quản lý tiến độ\n安全管理(あんぜんかんり): Quản lý an toàn",
+    "tip": "Ghi nhớ: Chữ Q là Quality (Chất lượng), nên chọn 品質管理(ひんしつかんり) (Quản lý chất lượng)."
+  },
+  {
+    "id": "45",
+    "q": "写真接合方法(しゃしんせつごうほうほう)は何(なん)というか 『144』",
+    "options": [
+      "MD継手(つぎて)",
+      "ハウジング管継手(かんつぎて)",
+      "カップリング継手(つぎて)",
+      "No-HUB継手(つぎて)"
+    ],
+    "answer": 1,
+    "vi": "Phương pháp nối trong ảnh gọi là gì?",
+    "explain": "Hình ảnh cho thấy loại khớp nối ống gồm 2 nửa ốp bên ngoài và siết lại bằng bu lông, đây là khớp nối vỏ bọc ハウジング管継手(かんつぎて).\n\nTừ vựng:\n写真(しゃしん): Bức ảnh\n接合方法(せつごうほうほう): Phương pháp nối\n何(なん): Cái gì\n継手(つぎて): Khớp nối\n管継手(かんつぎて): Khớp nối ống",
+    "tip": "Ghi nhớ: Thấy loại khớp nối có hai nửa ốp vòng quanh ống thì chọn ハウジング管継手(かんつぎて) (Khớp nối housing)."
+  },
+  {
+    "id": "46",
+    "q": "硬質(こうしつ)ポリ塩化(えんか)ビニル管(かん)の加工手順(かこうてじゅん)で、管(かん)を切断(せつだん)して、接着剤(せっちゃくざい)を塗(ぬ)る前(まえ)に行(おこな)うものを選(えら)べ。『145』",
+    "options": [
+      "ねじ切(き)りする",
+      "仮付(かりつ)け溶接(ようせつ)",
+      "飲(の)み込(こ)み分(ぶん)のマーキング",
+      "継手(つぎて)に管(かん)を挿入(そうにゅう)する"
+    ],
+    "answer": 2,
+    "vi": "Trong quy trình gia công ống nhựa PVC cứng, sau khi cắt ống và trước khi bôi keo dính thì phải làm việc gì? Hãy chọn đáp án đúng.",
+    "explain": "Trước khi bôi keo để dán ống nhựa, cần phải đánh dấu độ sâu chèn ống 飲(の)み込(こ)み分(ぶん)のマーキング để đảm bảo đẩy ống vào khớp nối đủ độ sâu yêu cầu.\n\nTừ vựng:\n硬質(こうしつ): Cứng\n塩化(えんか): Clorua\n管(かん): Ống\n加工手順(かこうてじゅん): Trình tự gia công\n切断(せつだん): Cắt\n接着剤(せっちゃくざい): Keo dán\n塗(ぬ)る: Bôi\n前(まえ): Trước khi\n行(おこな)う: Thực hiện\n選(えら)べ: Hãy chọn\n切(き)り: Cắt\n仮付(かりつ)け: Gắn tạm\n溶接(ようせつ): Hàn\n飲(の)み込(こ)み: Độ ngậm ống\n分(ぶん): Phần\n継手(つぎて): Khớp nối\n挿入(そうにゅう): Chèn vào",
+    "tip": "Ghi nhớ: Trong quy trình ống nhựa, thao tác thực hiện trước khi 接着剤(せっちゃくざい)を塗(ぬ)る (Bôi keo) là 飲(の)み込(こ)み分(ぶん)のマーキング (Đánh dấu độ ngậm)."
+  },
+  {
+    "id": "48",
+    "q": "冷媒用被覆銅管(れいばいようひふくどうかん)の加工(かこう)において、銅管(どうかん)の切断後(せつだんご)、真円修正(しんえんしゅうせい)より前(まえ)に行(おこな)うものを選(えら)べ。『147』",
+    "options": [
+      "ろう付(づ)け",
+      "保温材(ほおんざい)の接続(せつぞく)",
+      "バリ取(と)り",
+      "保温材(ほおんざい)の切断(せつだん)"
+    ],
+    "answer": 2,
+    "vi": "Khi gia công ống đồng bọc bảo ôn dùng cho môi chất lạnh, sau khi cắt ống đồng và trước khi nong tròn lại ống thì phải làm việc gì? Hãy chọn đáp án đúng.",
+    "explain": "Sau khi cắt ống đồng, miệng cắt sẽ bị sắc và gồ ghề (ba via), do đó phải tiến hành gọt ba via バリ取(と)り trước khi nong tròn lại miệng ống để tránh mạt đồng lọt vào trong.\n\nTừ vựng:\n冷媒用被覆銅管(れいばいようひふくどうかん): Ống đồng bọc bảo ôn dùng cho môi chất lạnh\n加工(かこう): Gia công\n銅管(どうかん): Ống đồng\n切断後(せつだんご): Sau khi cắt\n真円修正(しんえんしゅうせい): Sửa độ tròn xoe\n前(まえ): Trước khi\n行(おこな)う: Thực hiện\n選(えら)べ: Hãy chọn\n付(づ)け: Hàn vảy cứng\n保温材(ほおんざい): Vật liệu bảo ôn\n接続(せつぞく): Kết nối\n取(と)り: Lấy đi\n切断(せつだん): Cắt",
+    "tip": "Ghi nhớ: Sau khi 切断(せつだん) (Cắt ống) thì thao tác phải làm là バリ取(と)り (Gọt ba via)."
+  }
+
+
 
 
